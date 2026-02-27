@@ -1,0 +1,405 @@
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { Profile, Service, Appointment, Salon } from '../types';
+import { Plus, Calendar as CalendarIcon, Users, Scissors, DollarSign, Clock, CheckCircle, XCircle, Settings, LayoutDashboard, ListChecks, CalendarDays, List, UserPlus, BarChart3 } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { toast } from 'react-hot-toast';
+import SalonSettings from './SalonSettings';
+import ServiceManagement from './ServiceManagement';
+import CalendarView from './CalendarView';
+import AdminBookingModal from './AdminBookingModal';
+import AnalyticsView from './AnalyticsView';
+
+interface DashboardProps {
+  profile: Profile | null;
+  initialTab?: 'overview' | 'services' | 'settings' | 'analytics';
+}
+
+export default function Dashboard({ profile, initialTab = 'overview' }: DashboardProps) {
+  const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'settings' | 'analytics'>(initialTab);
+  const [displayMode, setDisplayMode] = useState<'list' | 'calendar'>('calendar');
+  const [showAdminBooking, setShowAdminBooking] = useState(false);
+  const [salon, setSalon] = useState<Salon | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddService, setShowAddService] = useState(false);
+  const [revenueFilter, setRevenueFilter] = useState<'day' | 'month' | 'year'>('day');
+
+  // New Service Form
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServicePrice, setNewServicePrice] = useState('');
+  const [newServiceDuration, setNewServiceDuration] = useState('30');
+
+  useEffect(() => {
+    if (profile) {
+      fetchData();
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (!salon) return;
+
+    // Subscribe to real-time changes for appointments
+    const channel = supabase
+      .channel(`salon-${salon.id}-appointments`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'appointments',
+          filter: `salon_id=eq.${salon.id}`
+        },
+        (payload) => {
+          const newApt = payload.new as any;
+          if (newApt.status === 'pending') {
+            toast('Novo agendamento pendente!', {
+              icon: '🔔',
+              duration: 6000,
+              style: {
+                borderRadius: '16px',
+                background: '#1c1917',
+                color: '#fff',
+              },
+            });
+            fetchData();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'appointments',
+          filter: `salon_id=eq.${salon.id}`
+        },
+        (payload) => {
+          const oldApt = payload.old as any;
+          const newApt = payload.new as any;
+          
+          // If status changed to cancelled
+          if (newApt.status === 'cancelled' && oldApt?.status !== 'cancelled') {
+            toast('Um agendamento foi cancelado pelo cliente.', {
+              icon: '⚠️',
+              duration: 6000,
+              style: {
+                borderRadius: '16px',
+                background: '#ef4444',
+                color: '#fff',
+              },
+            });
+            fetchData();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [salon?.id]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch Salon
+      const { data: salonData } = await supabase
+        .from('salons')
+        .select('*')
+        .eq('owner_id', profile?.id)
+        .single();
+      
+      if (salonData) {
+        setSalon(salonData);
+        
+        // Fetch Services for this salon
+        const { data: servicesData } = await supabase
+          .from('services')
+          .select('*')
+          .eq('salon_id', salonData.id);
+        
+        if (servicesData) setServices(servicesData);
+
+        // Fetch Appointments for this salon
+        const { data: appointmentsData } = await supabase
+          .from('appointments')
+          .select('*, profiles(full_name), services(name)')
+          .eq('salon_id', salonData.id)
+          .order('start_time', { ascending: true });
+
+        if (appointmentsData) setAppointments(appointmentsData as any);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!salon) {
+      toast.error('Cadastre seu salão primeiro nas configurações');
+      return;
+    }
+    try {
+      const { error } = await supabase.from('services').insert({
+        name: newServiceName,
+        price: parseFloat(newServicePrice),
+        duration: parseInt(newServiceDuration),
+        salon_id: salon.id
+      });
+
+      if (error) throw error;
+      toast.success('Serviço adicionado!');
+      setShowAddService(false);
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const updateAppointmentStatus = async (id: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Status atualizado!');
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const calculateRevenue = () => {
+    const now = new Date();
+    return appointments
+      .filter(apt => {
+        if (apt.status !== 'completed') return false;
+        const aptDate = new Date(apt.start_time);
+        
+        if (revenueFilter === 'day') {
+          return format(aptDate, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
+        } else if (revenueFilter === 'month') {
+          return format(aptDate, 'yyyy-MM') === format(now, 'yyyy-MM');
+        } else {
+          return format(aptDate, 'yyyy') === format(now, 'yyyy');
+        }
+      })
+      .reduce((acc, curr: any) => acc + (curr.services?.price || 0), 0);
+  };
+
+  if (loading) return <div className="p-12 text-center">Carregando painel...</div>;
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      {!salon && !loading && (
+        <div className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="bg-amber-100 p-3 rounded-xl mr-4">
+              <Settings className="h-6 w-6 text-amber-600" />
+            </div>
+            <div>
+              <h3 className="text-amber-900 font-bold">Configure seu Salão</h3>
+              <p className="text-amber-700 text-sm">Você precisa configurar as informações do seu salão antes de cadastrar serviços ou agendamentos.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setActiveTab('settings')}
+            className="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-amber-700 transition-all"
+          >
+            Ir para Configurações
+          </button>
+        </div>
+      )}
+
+      <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 className="text-4xl serif mb-2">Olá, {profile?.full_name || 'Profissional'}</h1>
+          <p className="text-stone-500">Aqui está o que está acontecendo no seu salão hoje.</p>
+        </div>
+        
+        <div className="flex bg-stone-100 p-1 rounded-2xl border border-stone-200 self-start md:self-auto">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
+              activeTab === 'overview' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500 hover:text-stone-700'
+            }`}
+          >
+            <LayoutDashboard className="h-4 w-4 mr-2" /> Visão Geral
+          </button>
+          <button
+            onClick={() => setActiveTab('services')}
+            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
+              activeTab === 'services' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500 hover:text-stone-700'
+            }`}
+          >
+            <ListChecks className="h-4 w-4 mr-2" /> Serviços
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
+              activeTab === 'analytics' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500 hover:text-stone-700'
+            }`}
+          >
+            <BarChart3 className="h-4 w-4 mr-2" /> Análises
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
+              activeTab === 'settings' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500 hover:text-stone-700'
+            }`}
+          >
+            <Settings className="h-4 w-4 mr-2" /> Configurações
+          </button>
+        </div>
+      </header>
+
+      {activeTab === 'overview' && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <StatCard icon={<CalendarIcon className="text-blue-500" />} label="Agendamentos" value={appointments.length.toString()} />
+            <StatCard icon={<Scissors className="text-brand-primary" />} label="Serviços Ativos" value={services.length.toString()} />
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="p-4 bg-stone-50 rounded-2xl">
+                  <DollarSign className="text-emerald-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-stone-500 font-medium">Receita {revenueFilter === 'day' ? 'do Dia' : revenueFilter === 'month' ? 'do Mês' : 'do Ano'}</p>
+                  <p className="text-2xl font-bold text-stone-800">R$ {calculateRevenue().toFixed(2)}</p>
+                </div>
+              </div>
+              <select 
+                value={revenueFilter} 
+                onChange={(e) => setRevenueFilter(e.target.value as any)}
+                className="text-xs bg-stone-50 border-none rounded-lg focus:ring-0 cursor-pointer text-stone-500 font-bold uppercase tracking-wider"
+              >
+                <option value="day">Dia</option>
+                <option value="month">Mês</option>
+                <option value="year">Ano</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl serif flex items-center">
+              <CalendarIcon className="mr-2 h-6 w-6 text-stone-400" />
+              Agenda de Atendimentos
+            </h2>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowAdminBooking(true)}
+                className="flex items-center px-4 py-2 bg-brand-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-brand-primary/20 hover:bg-opacity-90 transition-all"
+              >
+                <UserPlus className="h-4 w-4 mr-2" /> Novo Agendamento
+              </button>
+              <div className="flex bg-stone-100 p-1 rounded-xl border border-stone-200">
+                <button 
+                  onClick={() => setDisplayMode('calendar')}
+                  className={`p-2 rounded-lg transition-all ${displayMode === 'calendar' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-400 hover:text-stone-600'}`}
+                  title="Visualização em Calendário"
+                >
+                  <CalendarDays className="h-5 w-5" />
+                </button>
+                <button 
+                  onClick={() => setDisplayMode('list')}
+                  className={`p-2 rounded-lg transition-all ${displayMode === 'list' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-400 hover:text-stone-600'}`}
+                  title="Visualização em Lista"
+                >
+                  <List className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {displayMode === 'calendar' ? (
+            <CalendarView appointments={appointments} />
+          ) : (
+            <div className="lg:col-span-3 space-y-6">
+              <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-100">
+                <div className="space-y-4">
+                  {appointments.length === 0 ? (
+                    <p className="text-stone-400 text-center py-8 italic">Nenhum agendamento encontrado.</p>
+                  ) : (
+                    appointments.map((apt: any) => (
+                      <div key={apt.id} className="flex items-center justify-between p-4 bg-stone-50 rounded-2xl border border-stone-100 hover:border-brand-primary/30 transition-all">
+                        <div className="flex items-center space-x-4">
+                          <div className="bg-white p-3 rounded-xl shadow-sm">
+                            <CalendarIcon className="h-5 w-5 text-brand-primary" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-stone-800">{apt.profiles?.full_name || 'Cliente'}</p>
+                            <p className="text-sm text-stone-500">{apt.services?.name} • {format(new Date(apt.start_time), "dd 'de' MMM, HH:mm", { locale: ptBR })}</p>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          {apt.status === 'pending' && (
+                            <>
+                              <button onClick={() => updateAppointmentStatus(apt.id, 'confirmed')} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Confirmar">
+                                <CheckCircle className="h-5 w-5" />
+                              </button>
+                              <button onClick={() => updateAppointmentStatus(apt.id, 'cancelled')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Cancelar">
+                                <XCircle className="h-5 w-5" />
+                              </button>
+                            </>
+                          )}
+                          {apt.status === 'confirmed' && (
+                            <button onClick={() => updateAppointmentStatus(apt.id, 'completed')} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Concluir Atendimento">
+                              <CheckCircle className="h-5 w-5" />
+                            </button>
+                          )}
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            apt.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 
+                            apt.status === 'cancelled' ? 'bg-red-100 text-red-700' : 
+                            apt.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {apt.status === 'confirmed' ? 'Confirmado' : 
+                             apt.status === 'cancelled' ? 'Cancelado' : 
+                             apt.status === 'completed' ? 'Concluído' : 'Pendente'}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === 'services' && <ServiceManagement profile={profile} salonId={salon?.id} />}
+      {activeTab === 'analytics' && <AnalyticsView appointments={appointments} services={services} />}
+      {activeTab === 'settings' && <SalonSettings profile={profile} />}
+
+      <AdminBookingModal 
+        isOpen={showAdminBooking}
+        onClose={() => setShowAdminBooking(false)}
+        onSuccess={fetchData}
+        profile={profile}
+        salonId={salon?.id}
+      />
+    </div>
+  );
+}
+
+function StatCard({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
+  return (
+    <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 flex items-center space-x-4">
+      <div className="p-4 bg-stone-50 rounded-2xl">
+        {icon}
+      </div>
+      <div>
+        <p className="text-sm text-stone-500 font-medium">{label}</p>
+        <p className="text-2xl font-bold text-stone-800">{value}</p>
+      </div>
+    </div>
+  );
+}
