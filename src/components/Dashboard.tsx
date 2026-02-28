@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Profile, Service, Appointment, Salon } from '../types';
-import { Plus, Calendar as CalendarIcon, Users, Scissors, DollarSign, Clock, CheckCircle, XCircle, Settings, LayoutDashboard, ListChecks, CalendarDays, List, UserPlus, BarChart3 } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Users, Scissors, DollarSign, Clock, CheckCircle, XCircle, Settings, LayoutDashboard, ListChecks, CalendarDays, List, UserPlus, BarChart3, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
@@ -10,14 +10,16 @@ import ServiceManagement from './ServiceManagement';
 import CalendarView from './CalendarView';
 import AdminBookingModal from './AdminBookingModal';
 import AnalyticsView from './AnalyticsView';
+import ReviewsView from './ReviewsView';
 
 interface DashboardProps {
   profile: Profile | null;
   initialTab?: 'overview' | 'services' | 'settings' | 'analytics';
+  theme?: 'light' | 'dark';
 }
 
-export default function Dashboard({ profile, initialTab = 'overview' }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'settings' | 'analytics'>(initialTab);
+export default function Dashboard({ profile, initialTab = 'overview', theme }: DashboardProps) {
+  const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews'>(initialTab as any);
   const [displayMode, setDisplayMode] = useState<'list' | 'calendar'>('calendar');
   const [showAdminBooking, setShowAdminBooking] = useState(false);
   const [salon, setSalon] = useState<Salon | null>(null);
@@ -126,7 +128,7 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
         // Fetch Appointments for this salon
         const { data: appointmentsData } = await supabase
           .from('appointments')
-          .select('*, profiles(full_name), services(name)')
+          .select('*, profiles(full_name), services(name, price)')
           .eq('salon_id', salonData.id)
           .order('start_time', { ascending: true });
 
@@ -198,16 +200,16 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
   if (loading) return <div className="p-12 text-center">Carregando painel...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 transition-colors duration-300">
       {!salon && !loading && (
-        <div className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-center justify-between">
+        <div className="mb-8 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 flex items-center justify-between">
           <div className="flex items-center">
-            <div className="bg-amber-100 p-3 rounded-xl mr-4">
-              <Settings className="h-6 w-6 text-amber-600" />
+            <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl mr-4">
+              <Settings className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <h3 className="text-amber-900 font-bold">Configure seu Salão</h3>
-              <p className="text-amber-700 text-sm">Você precisa configurar as informações do seu salão antes de cadastrar serviços ou agendamentos.</p>
+              <h3 className="text-amber-900 dark:text-amber-100 font-bold">Configure seu Salão</h3>
+              <p className="text-amber-700 dark:text-amber-300 text-sm">Você precisa configurar as informações do seu salão antes de cadastrar serviços ou agendamentos.</p>
             </div>
           </div>
           <button 
@@ -221,15 +223,15 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
 
       <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl serif mb-2">Olá, {profile?.full_name || 'Profissional'}</h1>
-          <p className="text-stone-500">Aqui está o que está acontecendo no seu salão hoje.</p>
+          <h1 className="text-4xl serif mb-2 text-stone-900 dark:text-stone-100">Olá, {profile?.full_name || 'Profissional'}</h1>
+          <p className="text-stone-500 dark:text-stone-400">Aqui está o que está acontecendo no seu salão hoje.</p>
         </div>
         
-        <div className="flex bg-stone-100 p-1 rounded-2xl border border-stone-200 self-start md:self-auto">
+        <div className="flex bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl border border-stone-200 dark:border-stone-700 self-start md:self-auto">
           <button
             onClick={() => setActiveTab('overview')}
             className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'overview' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500 hover:text-stone-700'
+              activeTab === 'overview' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
             }`}
           >
             <LayoutDashboard className="h-4 w-4 mr-2" /> Visão Geral
@@ -237,7 +239,7 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
           <button
             onClick={() => setActiveTab('services')}
             className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'services' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500 hover:text-stone-700'
+              activeTab === 'services' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
             }`}
           >
             <ListChecks className="h-4 w-4 mr-2" /> Serviços
@@ -245,15 +247,23 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
           <button
             onClick={() => setActiveTab('analytics')}
             className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'analytics' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500 hover:text-stone-700'
+              activeTab === 'analytics' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
             }`}
           >
             <BarChart3 className="h-4 w-4 mr-2" /> Análises
           </button>
           <button
+            onClick={() => setActiveTab('reviews')}
+            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
+              activeTab === 'reviews' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
+            }`}
+          >
+            <Star className="h-4 w-4 mr-2" /> Avaliações
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'settings' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500 hover:text-stone-700'
+              activeTab === 'settings' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
             }`}
           >
             <Settings className="h-4 w-4 mr-2" /> Configurações
@@ -266,20 +276,20 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <StatCard icon={<CalendarIcon className="text-blue-500" />} label="Agendamentos" value={appointments.length.toString()} />
             <StatCard icon={<Scissors className="text-brand-primary" />} label="Serviços Ativos" value={services.length.toString()} />
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 flex items-center justify-between">
+            <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 flex items-center justify-between transition-colors duration-300">
               <div className="flex items-center space-x-4">
-                <div className="p-4 bg-stone-50 rounded-2xl">
+                <div className="p-4 bg-stone-50 dark:bg-stone-800 rounded-2xl">
                   <DollarSign className="text-emerald-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-stone-500 font-medium">Receita {revenueFilter === 'day' ? 'do Dia' : revenueFilter === 'month' ? 'do Mês' : 'do Ano'}</p>
-                  <p className="text-2xl font-bold text-stone-800">R$ {calculateRevenue().toFixed(2)}</p>
+                  <p className="text-sm text-stone-500 dark:text-stone-400 font-medium">Receita {revenueFilter === 'day' ? 'do Dia' : revenueFilter === 'month' ? 'do Mês' : 'do Ano'}</p>
+                  <p className="text-2xl font-bold text-stone-800 dark:text-stone-100">R$ {calculateRevenue().toFixed(2)}</p>
                 </div>
               </div>
               <select 
                 value={revenueFilter} 
                 onChange={(e) => setRevenueFilter(e.target.value as any)}
-                className="text-xs bg-stone-50 border-none rounded-lg focus:ring-0 cursor-pointer text-stone-500 font-bold uppercase tracking-wider"
+                className="text-xs bg-stone-50 dark:bg-stone-800 border-none rounded-lg focus:ring-0 cursor-pointer text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wider"
               >
                 <option value="day">Dia</option>
                 <option value="month">Mês</option>
@@ -289,8 +299,8 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
           </div>
 
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl serif flex items-center">
-              <CalendarIcon className="mr-2 h-6 w-6 text-stone-400" />
+            <h2 className="text-2xl serif flex items-center text-stone-900 dark:text-stone-100">
+              <CalendarIcon className="mr-2 h-6 w-6 text-stone-400 dark:text-stone-500" />
               Agenda de Atendimentos
             </h2>
             <div className="flex items-center space-x-4">
@@ -300,17 +310,17 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
               >
                 <UserPlus className="h-4 w-4 mr-2" /> Novo Agendamento
               </button>
-              <div className="flex bg-stone-100 p-1 rounded-xl border border-stone-200">
+              <div className="flex bg-stone-100 dark:bg-stone-800 p-1 rounded-xl border border-stone-200 dark:border-stone-700">
                 <button 
                   onClick={() => setDisplayMode('calendar')}
-                  className={`p-2 rounded-lg transition-all ${displayMode === 'calendar' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-400 hover:text-stone-600'}`}
+                  className={`p-2 rounded-lg transition-all ${displayMode === 'calendar' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'}`}
                   title="Visualização em Calendário"
                 >
                   <CalendarDays className="h-5 w-5" />
                 </button>
                 <button 
                   onClick={() => setDisplayMode('list')}
-                  className={`p-2 rounded-lg transition-all ${displayMode === 'list' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-400 hover:text-stone-600'}`}
+                  className={`p-2 rounded-lg transition-all ${displayMode === 'list' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'}`}
                   title="Visualização em Lista"
                 >
                   <List className="h-5 w-5" />
@@ -323,42 +333,42 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
             <CalendarView appointments={appointments} />
           ) : (
             <div className="lg:col-span-3 space-y-6">
-              <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-100">
+              <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 shadow-sm border border-stone-100 dark:border-stone-800 transition-colors duration-300">
                 <div className="space-y-4">
                   {appointments.length === 0 ? (
-                    <p className="text-stone-400 text-center py-8 italic">Nenhum agendamento encontrado.</p>
+                    <p className="text-stone-400 dark:text-stone-500 text-center py-8 italic">Nenhum agendamento encontrado.</p>
                   ) : (
                     appointments.map((apt: any) => (
-                      <div key={apt.id} className="flex items-center justify-between p-4 bg-stone-50 rounded-2xl border border-stone-100 hover:border-brand-primary/30 transition-all">
+                      <div key={apt.id} className="flex items-center justify-between p-4 bg-stone-50 dark:bg-stone-800/50 rounded-2xl border border-stone-100 dark:border-stone-800 hover:border-brand-primary/30 transition-all">
                         <div className="flex items-center space-x-4">
-                          <div className="bg-white p-3 rounded-xl shadow-sm">
+                          <div className="bg-white dark:bg-stone-800 p-3 rounded-xl shadow-sm">
                             <CalendarIcon className="h-5 w-5 text-brand-primary" />
                           </div>
                           <div>
-                            <p className="font-semibold text-stone-800">{apt.profiles?.full_name || 'Cliente'}</p>
-                            <p className="text-sm text-stone-500">{apt.services?.name} • {format(new Date(apt.start_time), "dd 'de' MMM, HH:mm", { locale: ptBR })}</p>
+                            <p className="font-semibold text-stone-800 dark:text-stone-100">{apt.profiles?.full_name || 'Cliente'}</p>
+                            <p className="text-sm text-stone-500 dark:text-stone-400">{apt.services?.name} • {format(new Date(apt.start_time), "dd 'de' MMM, HH:mm", { locale: ptBR })}</p>
                           </div>
                         </div>
                         <div className="flex space-x-2">
                           {apt.status === 'pending' && (
                             <>
-                              <button onClick={() => updateAppointmentStatus(apt.id, 'confirmed')} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Confirmar">
+                              <button onClick={() => updateAppointmentStatus(apt.id, 'confirmed')} className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors" title="Confirmar">
                                 <CheckCircle className="h-5 w-5" />
                               </button>
-                              <button onClick={() => updateAppointmentStatus(apt.id, 'cancelled')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Cancelar">
+                              <button onClick={() => updateAppointmentStatus(apt.id, 'cancelled')} className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Cancelar">
                                 <XCircle className="h-5 w-5" />
                               </button>
                             </>
                           )}
                           {apt.status === 'confirmed' && (
-                            <button onClick={() => updateAppointmentStatus(apt.id, 'completed')} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Concluir Atendimento">
+                            <button onClick={() => updateAppointmentStatus(apt.id, 'completed')} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Concluir Atendimento">
                               <CheckCircle className="h-5 w-5" />
                             </button>
                           )}
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            apt.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 
-                            apt.status === 'cancelled' ? 'bg-red-100 text-red-700' : 
-                            apt.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                            apt.status === 'confirmed' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 
+                            apt.status === 'cancelled' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 
+                            apt.status === 'completed' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                           }`}>
                             {apt.status === 'confirmed' ? 'Confirmado' : 
                              apt.status === 'cancelled' ? 'Cancelado' : 
@@ -376,7 +386,8 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
       )}
 
       {activeTab === 'services' && <ServiceManagement profile={profile} salonId={salon?.id} />}
-      {activeTab === 'analytics' && <AnalyticsView appointments={appointments} services={services} />}
+      {activeTab === 'analytics' && <AnalyticsView appointments={appointments} services={services} theme={theme} />}
+      {activeTab === 'reviews' && <ReviewsView salonId={salon?.id} />}
       {activeTab === 'settings' && <SalonSettings profile={profile} />}
 
       <AdminBookingModal 
@@ -392,13 +403,13 @@ export default function Dashboard({ profile, initialTab = 'overview' }: Dashboar
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
   return (
-    <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 flex items-center space-x-4">
-      <div className="p-4 bg-stone-50 rounded-2xl">
+    <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 flex items-center space-x-4 transition-colors duration-300">
+      <div className="p-4 bg-stone-50 dark:bg-stone-800 rounded-2xl">
         {icon}
       </div>
       <div>
-        <p className="text-sm text-stone-500 font-medium">{label}</p>
-        <p className="text-2xl font-bold text-stone-800">{value}</p>
+        <p className="text-sm text-stone-500 dark:text-stone-400 font-medium">{label}</p>
+        <p className="text-2xl font-bold text-stone-800 dark:text-stone-100">{value}</p>
       </div>
     </div>
   );

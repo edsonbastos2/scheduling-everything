@@ -51,19 +51,19 @@ export default function UserProfileSettings({ profile, onUpdate, onBack }: UserP
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-2xl mx-auto px-4 py-12 animate-in fade-in slide-in-from-bottom-4 duration-500 transition-colors duration-300">
       <button 
         onClick={onBack}
-        className="flex items-center text-stone-500 hover:text-stone-800 mb-8 transition-colors group"
+        className="flex items-center text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 mb-8 transition-colors group"
       >
         <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
         Voltar
       </button>
 
-      <div className="bg-white rounded-[40px] shadow-xl shadow-stone-200/50 border border-stone-100 overflow-hidden">
-        <div className="bg-brand-primary/5 p-8 border-b border-stone-100 text-center">
+      <div className="bg-white dark:bg-stone-900 rounded-[40px] shadow-xl shadow-stone-200/50 dark:shadow-black/50 border border-stone-100 dark:border-stone-800 overflow-hidden">
+        <div className="bg-brand-primary/5 dark:bg-brand-primary/10 p-8 border-b border-stone-100 dark:border-stone-800 text-center">
           <div className="relative inline-block mb-4">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-stone-100 mx-auto">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-stone-800 shadow-md bg-stone-100 dark:bg-stone-800 mx-auto">
               {avatarUrl ? (
                 <img 
                   src={avatarUrl} 
@@ -72,22 +72,22 @@ export default function UserProfileSettings({ profile, onUpdate, onBack }: UserP
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-stone-300">
+                <div className="w-full h-full flex items-center justify-center text-stone-300 dark:text-stone-600">
                   <User className="h-12 w-12" />
                 </div>
               )}
             </div>
-            <div className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-lg border border-stone-100 text-brand-primary">
+            <div className="absolute bottom-0 right-0 bg-white dark:bg-stone-800 p-2 rounded-full shadow-lg border border-stone-100 dark:border-stone-700 text-brand-primary">
               <Camera className="h-4 w-4" />
             </div>
           </div>
-          <h2 className="text-2xl serif text-stone-800">Minha Conta</h2>
-          <p className="text-stone-500 text-sm">Gerencie suas informações pessoais</p>
+          <h2 className="text-2xl serif text-stone-800 dark:text-stone-100">Minha Conta</h2>
+          <p className="text-stone-500 dark:text-stone-400 text-sm">Gerencie suas informações pessoais</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-600 flex items-center">
+            <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
               <User className="h-4 w-4 mr-2" /> Nome Completo
             </label>
             <input
@@ -96,24 +96,24 @@ export default function UserProfileSettings({ profile, onUpdate, onBack }: UserP
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Seu nome completo"
-              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+              className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
             />
           </div>
 
           <div className="space-y-2 opacity-60">
-            <label className="text-sm font-semibold text-stone-600 flex items-center">
+            <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
               <Mail className="h-4 w-4 mr-2" /> E-mail (Não pode ser alterado)
             </label>
             <input
               type="email"
               disabled
               value={profile?.email || ''}
-              className="w-full px-4 py-3 bg-stone-100 border border-stone-200 rounded-xl cursor-not-allowed"
+              className="w-full px-4 py-3 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl cursor-not-allowed dark:text-stone-400"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-600 flex items-center">
+            <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
               <Camera className="h-4 w-4 mr-2" /> URL da Foto de Perfil
             </label>
             <input
@@ -121,9 +121,9 @@ export default function UserProfileSettings({ profile, onUpdate, onBack }: UserP
               value={avatarUrl}
               onChange={(e) => setAvatarUrl(e.target.value)}
               placeholder="https://exemplo.com/sua-foto.jpg"
-              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+              className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
             />
-            <p className="text-[10px] text-stone-400 italic">Cole o link de uma imagem pública (ex: do seu Instagram ou LinkedIn).</p>
+            <p className="text-[10px] text-stone-400 dark:text-stone-500 italic">Cole o link de uma imagem pública (ex: do seu Instagram ou LinkedIn).</p>
           </div>
 
           <div className="pt-4">

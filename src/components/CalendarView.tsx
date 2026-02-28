@@ -45,18 +45,18 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
   const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-stone-100 overflow-hidden">
+    <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 overflow-hidden transition-colors duration-300">
       {/* Calendar Header */}
-      <div className="p-6 border-b border-stone-50 flex items-center justify-between bg-stone-50/50">
-        <h2 className="text-2xl serif capitalize">
+      <div className="p-6 border-b border-stone-50 dark:border-stone-800 flex items-center justify-between bg-stone-50/50 dark:bg-stone-800/50">
+        <h2 className="text-2xl serif capitalize text-stone-900 dark:text-stone-100">
           {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
         </h2>
         <div className="flex space-x-2">
           <button 
             onClick={prevMonth}
-            className="p-2 hover:bg-stone-200 rounded-full transition-colors"
+            className="p-2 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-full transition-colors"
           >
-            <ChevronLeft className="h-5 w-5 text-stone-600" />
+            <ChevronLeft className="h-5 w-5 text-stone-600 dark:text-stone-400" />
           </button>
           <button 
             onClick={() => setCurrentMonth(new Date())}
@@ -66,17 +66,17 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
           </button>
           <button 
             onClick={nextMonth}
-            className="p-2 hover:bg-stone-200 rounded-full transition-colors"
+            className="p-2 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-full transition-colors"
           >
-            <ChevronRight className="h-5 w-5 text-stone-600" />
+            <ChevronRight className="h-5 w-5 text-stone-600 dark:text-stone-400" />
           </button>
         </div>
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 border-b border-stone-100">
+      <div className="grid grid-cols-7 border-b border-stone-100 dark:border-stone-800">
         {dayNames.map(day => (
-          <div key={day} className="py-3 text-center text-xs font-bold text-stone-400 uppercase tracking-widest">
+          <div key={day} className="py-3 text-center text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">
             {day}
           </div>
         ))}
@@ -93,15 +93,15 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
             <div 
               key={idx}
               onClick={() => setSelectedDate(day)}
-              className={`min-h-[120px] p-2 border-r border-b border-stone-50 transition-all cursor-pointer group ${
-                !isCurrentMonth ? 'bg-stone-50/30' : 'bg-white'
-              } ${isSelected ? 'ring-2 ring-inset ring-brand-primary/20 bg-brand-primary/5' : 'hover:bg-stone-50'}`}
+              className={`min-h-[120px] p-2 border-r border-b border-stone-50 dark:border-stone-800 transition-all cursor-pointer group ${
+                !isCurrentMonth ? 'bg-stone-50/30 dark:bg-stone-800/30' : 'bg-white dark:bg-stone-900'
+              } ${isSelected ? 'ring-2 ring-inset ring-brand-primary/20 bg-brand-primary/5 dark:bg-brand-primary/10' : 'hover:bg-stone-50 dark:hover:bg-stone-800'}`}
             >
               <div className="flex justify-between items-start mb-2">
                 <span className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-colors ${
                   isToday ? 'bg-brand-primary text-white' : 
                   isSelected ? 'text-brand-primary' :
-                  !isCurrentMonth ? 'text-stone-300' : 'text-stone-600'
+                  !isCurrentMonth ? 'text-stone-300 dark:text-stone-600' : 'text-stone-600 dark:text-stone-300'
                 }`}>
                   {format(day, 'd')}
                 </span>
@@ -117,16 +117,17 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
                   <div 
                     key={aIdx} 
                     className={`text-[10px] px-1.5 py-1 rounded-md truncate border ${
-                      apt.status === 'confirmed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                      apt.status === 'cancelled' ? 'bg-red-50 text-red-700 border-red-100' :
-                      'bg-amber-50 text-amber-700 border-amber-100'
+                      apt.status === 'confirmed' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800' :
+                      apt.status === 'cancelled' ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-100 dark:border-red-800' :
+                      apt.status === 'completed' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-800' :
+                      'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-800'
                     }`}
                   >
                     <span className="font-bold">{format(parseISO(apt.start_time), 'HH:mm')}</span> {apt.profiles?.full_name || 'Cliente'}
                   </div>
                 ))}
                 {dayAppointments.length > 3 && (
-                  <div className="text-[9px] text-stone-400 text-center font-medium">
+                  <div className="text-[9px] text-stone-400 dark:text-stone-500 text-center font-medium">
                     + {dayAppointments.length - 3} mais
                   </div>
                 )}
@@ -138,27 +139,30 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
 
       {/* Day Details (Optional footer or sidebar) */}
       {selectedDate && (
-        <div className="p-6 bg-stone-50 border-t border-stone-100">
-          <h3 className="text-lg serif mb-4 flex items-center">
+        <div className="p-6 bg-stone-50 dark:bg-stone-800 border-t border-stone-100 dark:border-stone-700">
+          <h3 className="text-lg serif mb-4 flex items-center text-stone-900 dark:text-stone-100">
             <Clock className="h-5 w-5 mr-2 text-brand-primary" />
             Agenda para {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
           </h3>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {getAppointmentsForDay(selectedDate).length === 0 ? (
-              <p className="text-stone-400 italic text-sm">Nenhum agendamento para este dia.</p>
+              <p className="text-stone-400 dark:text-stone-500 italic text-sm">Nenhum agendamento para este dia.</p>
             ) : (
               getAppointmentsForDay(selectedDate).map((apt, idx) => (
-                <div key={idx} className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex justify-between items-center">
+                <div key={idx} className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-sm flex justify-between items-center">
                   <div>
-                    <p className="font-bold text-stone-800">{format(parseISO(apt.start_time), 'HH:mm')}</p>
-                    <p className="text-sm text-stone-600">{apt.profiles?.full_name || 'Cliente'}</p>
-                    <p className="text-xs text-stone-400">{apt.services?.name}</p>
+                    <p className="font-bold text-stone-800 dark:text-stone-100">{format(parseISO(apt.start_time), 'HH:mm')}</p>
+                    <p className="text-sm text-stone-600 dark:text-stone-300">{apt.profiles?.full_name || 'Cliente'}</p>
+                    <p className="text-xs text-stone-400 dark:text-stone-500">{apt.services?.name}</p>
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                    apt.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 
-                    apt.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                    apt.status === 'confirmed' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' : 
+                    apt.status === 'cancelled' ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400' : 
+                    apt.status === 'completed' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400' : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400'
                   }`}>
-                    {apt.status === 'confirmed' ? 'Conf.' : apt.status === 'cancelled' ? 'Canc.' : 'Pend.'}
+                    {apt.status === 'confirmed' ? 'Conf.' : 
+                     apt.status === 'cancelled' ? 'Canc.' : 
+                     apt.status === 'completed' ? 'Concl.' : 'Pend.'}
                   </span>
                 </div>
               ))

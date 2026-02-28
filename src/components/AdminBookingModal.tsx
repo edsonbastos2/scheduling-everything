@@ -107,43 +107,43 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="p-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/50">
-          <h2 className="text-xl serif flex items-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm transition-colors duration-300">
+      <div className="bg-white dark:bg-stone-900 rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border border-stone-100 dark:border-stone-800">
+        <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center bg-stone-50/50 dark:bg-stone-800/50">
+          <h2 className="text-xl serif flex items-center text-stone-900 dark:text-stone-100">
             <CalendarIcon className="mr-2 h-5 w-5 text-brand-primary" />
             Novo Agendamento (Admin)
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-stone-200 rounded-full transition-colors">
-            <X className="h-5 w-5 text-stone-500" />
+          <button onClick={onClose} className="p-2 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-full transition-colors">
+            <X className="h-5 w-5 text-stone-500 dark:text-stone-400" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {/* Client Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-600 flex items-center">
+            <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
               <User className="h-4 w-4 mr-2" /> Selecionar Cliente
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-500" />
               <input
                 type="text"
                 placeholder="Buscar cliente por nome ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all dark:text-stone-100"
               />
             </div>
             <select
               required
               value={selectedClientId}
               onChange={(e) => setSelectedClientId(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+              className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all dark:text-stone-100"
             >
               <option value="">Selecione um cliente da lista...</option>
               {filteredClients.map(client => (
-                <option key={client.id} value={client.id}>
+                <option key={client.id} value={client.id} className="dark:bg-stone-900">
                   {client.full_name} ({client.email})
                 </option>
               ))}
@@ -152,18 +152,18 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
 
           {/* Service Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-600 flex items-center">
+            <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
               <Scissors className="h-4 w-4 mr-2" /> Serviço
             </label>
             <select
               required
               value={selectedServiceId}
               onChange={(e) => setSelectedServiceId(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+              className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all dark:text-stone-100"
             >
               <option value="">Selecione o serviço...</option>
               {services.map(service => (
-                <option key={service.id} value={service.id}>
+                <option key={service.id} value={service.id} className="dark:bg-stone-900">
                   {service.name} - R$ {service.price.toFixed(2)}
                 </option>
               ))}
@@ -173,7 +173,7 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
           {/* Date and Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-600 flex items-center">
+              <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
                 <CalendarIcon className="h-4 w-4 mr-2" /> Data
               </label>
               <input
@@ -181,11 +181,11 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all dark:text-stone-100"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-600 flex items-center">
+              <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
                 <Clock className="h-4 w-4 mr-2" /> Horário
               </label>
               <input
@@ -193,7 +193,7 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
                 required
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all dark:text-stone-100"
               />
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-stone-200 text-stone-600 font-semibold rounded-xl hover:bg-stone-50 transition-all"
+              className="flex-1 px-6 py-3 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-semibold rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800 transition-all"
             >
               Cancelar
             </button>

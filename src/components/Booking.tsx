@@ -6,20 +6,28 @@ import { format, addDays, startOfToday, setHours, setMinutes, isBefore } from 'd
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 
-export default function Booking() {
-  const [step, setStep] = useState(1);
+interface BookingProps {
+  initialService?: any;
+  onSuccess?: () => void;
+  onBack?: () => void;
+}
+
+export default function Booking({ initialService, onSuccess, onBack }: BookingProps) {
+  const [step, setStep] = useState(initialService ? 2 : 1);
   const [services, setServices] = useState<Service[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(initialService || null);
   const [selectedDate, setSelectedDate] = useState(startOfToday());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [customTime, setCustomTime] = useState('');
-  const [customDuration, setCustomDuration] = useState<number>(0);
+  const [customDuration, setCustomDuration] = useState<number>(initialService?.duration || 0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchServices();
-  }, []);
+    if (!initialService) {
+      fetchServices();
+    }
+  }, [initialService]);
 
   useEffect(() => {
     if (selectedService) {
@@ -64,6 +72,7 @@ export default function Booking() {
       
       toast.success('Agendamento solicitado com sucesso!');
       setStep(4);
+      if (onSuccess) onSuccess();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -78,22 +87,22 @@ export default function Booking() {
   const categories = ['Todos', ...Array.from(new Set(services.map(s => s.category).filter(Boolean) as string[]))];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="text-center mb-12">
-        <h1 className="text-4xl serif mb-4">Novo Agendamento</h1>
+        <h1 className="text-4xl serif mb-4 text-stone-900 dark:text-stone-100">Novo Agendamento</h1>
         <div className="flex justify-center items-center space-x-4">
           <StepIndicator current={step} step={1} label="Serviço" />
-          <ChevronRight className="h-4 w-4 text-stone-300" />
+          <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
           <StepIndicator current={step} step={2} label="Data e Hora" />
-          <ChevronRight className="h-4 w-4 text-stone-300" />
+          <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
           <StepIndicator current={step} step={3} label="Confirmar" />
         </div>
       </div>
 
-      <div className="bg-white rounded-[40px] shadow-xl shadow-stone-200/50 border border-stone-100 overflow-hidden">
+      <div className="bg-white dark:bg-stone-900 rounded-[40px] shadow-xl shadow-stone-200/50 dark:shadow-stone-950/50 border border-stone-100 dark:border-stone-800 overflow-hidden transition-colors duration-300">
         {step === 1 && (
           <div className="p-8 sm:p-12">
-            <h2 className="text-2xl serif mb-8">Escolha o serviço desejado</h2>
+            <h2 className="text-2xl serif mb-8 text-stone-900 dark:text-stone-100">Escolha o serviço desejado</h2>
             
             {/* Category Filter */}
             <div className="flex flex-wrap gap-2 mb-8">
@@ -104,7 +113,7 @@ export default function Booking() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     selectedCategory === cat 
                       ? 'bg-brand-primary text-white shadow-md' 
-                      : 'bg-stone-50 text-stone-500 hover:bg-stone-100'
+                      : 'bg-stone-50 dark:bg-stone-800 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-700'
                   }`}
                 >
                   {cat}
@@ -112,7 +121,7 @@ export default function Booking() {
               ))}
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4 mb-8">
               {filteredServices.map(service => (
                 <button
                   key={service.id}
@@ -122,8 +131,8 @@ export default function Booking() {
                   }}
                   className={`flex items-center justify-between p-6 rounded-3xl border-2 transition-all text-left group ${
                     selectedService?.id === service.id 
-                      ? 'border-brand-primary bg-brand-primary/5' 
-                      : 'border-stone-100 hover:border-brand-primary/30'
+                      ? 'border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10' 
+                      : 'border-stone-100 dark:border-stone-800 hover:border-brand-primary/30'
                   }`}
                 >
                   <div className="flex items-center space-x-4">
@@ -136,25 +145,34 @@ export default function Booking() {
                       />
                     </div>
                     <div>
-                      <p className="font-bold text-stone-800">{service.name}</p>
+                      <p className="font-bold text-stone-800 dark:text-stone-100">{service.name}</p>
                       <p className="text-xs text-brand-primary font-medium">{(service as any).salons?.name || 'Salão'}</p>
-                      <p className="text-[10px] text-stone-400">{service.duration} min</p>
+                      <p className="text-[10px] text-stone-400 dark:text-stone-500">{service.duration} min</p>
                     </div>
                   </div>
                   <p className="text-lg font-bold text-brand-primary">R$ {service.price}</p>
                 </button>
               ))}
             </div>
+
+            <div className="flex justify-start">
+              <button 
+                onClick={onBack}
+                className="text-stone-400 dark:text-stone-500 font-medium hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+              >
+                Voltar para a busca
+              </button>
+            </div>
           </div>
         )}
 
         {step === 2 && (
           <div className="p-8 sm:p-12">
-            <h2 className="text-2xl serif mb-8">Quando você quer vir?</h2>
+            <h2 className="text-2xl serif mb-8 text-stone-900 dark:text-stone-100">Quando você quer vir?</h2>
             
             <div className="grid md:grid-cols-2 gap-12">
               <div>
-                <p className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-4">Escolha a data</p>
+                <p className="text-sm font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Escolha a data</p>
                 <div className="grid grid-cols-4 gap-2">
                   {[0, 1, 2, 3, 4, 5, 6, 7].map(i => {
                     const date = addDays(startOfToday(), i);
@@ -164,7 +182,7 @@ export default function Booking() {
                         key={i}
                         onClick={() => setSelectedDate(date)}
                         className={`p-3 rounded-2xl flex flex-col items-center transition-all ${
-                          isSelected ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30' : 'bg-stone-50 text-stone-600 hover:bg-stone-100'
+                          isSelected ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700'
                         }`}
                       >
                         <span className="text-[10px] uppercase font-bold opacity-60">{format(date, 'EEE', { locale: ptBR })}</span>
@@ -176,7 +194,7 @@ export default function Booking() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-4">Horários disponíveis</p>
+                <p className="text-sm font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Horários disponíveis</p>
                 <div className="grid grid-cols-3 gap-2 mb-6">
                   {timeSlots.map(time => (
                     <button
@@ -186,7 +204,7 @@ export default function Booking() {
                         setCustomTime('');
                       }}
                       className={`py-3 rounded-xl text-sm font-bold transition-all ${
-                        selectedTime === time && !customTime ? 'bg-brand-primary text-white' : 'bg-stone-50 text-stone-600 hover:bg-stone-100'
+                        selectedTime === time && !customTime ? 'bg-brand-primary text-white' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700'
                       }`}
                     >
                       {time}
@@ -194,7 +212,7 @@ export default function Booking() {
                   ))}
                 </div>
 
-                <p className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-4">Ou escolha um horário personalizado</p>
+                <p className="text-sm font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Ou escolha um horário personalizado</p>
                 <input
                   type="time"
                   value={customTime}
@@ -202,17 +220,17 @@ export default function Booking() {
                     setCustomTime(e.target.value);
                     setSelectedTime(null);
                   }}
-                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all mb-6"
+                  className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all mb-6 dark:text-stone-100"
                 />
 
-                <p className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-4">Duração preferida (minutos)</p>
+                <p className="text-sm font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Duração preferida (minutos)</p>
                 <div className="grid grid-cols-4 gap-2">
                   {[15, 30, 45, 60, 90, 120].map(dur => (
                     <button
                       key={dur}
                       onClick={() => setCustomDuration(dur)}
                       className={`py-2 rounded-xl text-xs font-bold transition-all ${
-                        customDuration === dur ? 'bg-brand-primary text-white' : 'bg-stone-50 text-stone-600 hover:bg-stone-100'
+                        customDuration === dur ? 'bg-brand-primary text-white' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700'
                       }`}
                     >
                       {dur}m
@@ -223,7 +241,12 @@ export default function Booking() {
             </div>
 
             <div className="mt-12 flex justify-between">
-              <button onClick={() => setStep(1)} className="text-stone-400 font-medium hover:text-stone-600">Voltar</button>
+              <button 
+                onClick={() => initialService ? onBack?.() : setStep(1)} 
+                className="text-stone-400 dark:text-stone-500 font-medium hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+              >
+                Voltar
+              </button>
               <button 
                 disabled={!selectedTime && !customTime}
                 onClick={() => setStep(3)}
@@ -241,14 +264,14 @@ export default function Booking() {
               <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Check className="h-10 w-10 text-brand-primary" />
               </div>
-              <h2 className="text-3xl serif mb-2">Revisão Final</h2>
-              <p className="text-stone-500">Confirme se todos os dados estão corretos antes de finalizar.</p>
+              <h2 className="text-3xl serif mb-2 text-stone-900 dark:text-stone-100">Revisão Final</h2>
+              <p className="text-stone-500 dark:text-stone-400">Confirme se todos os dados estão corretos antes de finalizar.</p>
             </div>
 
             <div className="max-w-md mx-auto">
-              <div className="bg-stone-50 rounded-[32px] border border-stone-200 overflow-hidden shadow-sm mb-8">
-                <div className="bg-brand-primary/5 p-6 border-b border-stone-200 flex items-center space-x-4">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
+              <div className="bg-stone-50 dark:bg-stone-800/50 rounded-[32px] border border-stone-200 dark:border-stone-700 overflow-hidden shadow-sm mb-8">
+                <div className="bg-brand-primary/5 dark:bg-brand-primary/10 p-6 border-b border-stone-200 dark:border-stone-700 flex items-center space-x-4">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 border-2 border-white dark:border-stone-800 shadow-sm">
                     <img 
                       src={selectedService?.image_url || 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&q=80&w=200'} 
                       alt={selectedService?.name}
@@ -258,24 +281,24 @@ export default function Booking() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-1">Serviço Selecionado</p>
-                    <h3 className="text-xl font-bold text-stone-800">{selectedService?.name}</h3>
-                    <p className="text-sm text-stone-500">{(selectedService as any).salons?.name}</p>
+                    <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100">{selectedService?.name}</h3>
+                    <p className="text-sm text-stone-500 dark:text-stone-400">{(selectedService as any).salons?.name}</p>
                   </div>
                 </div>
                 
                 <div className="p-6 space-y-6">
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Data</p>
-                      <div className="flex items-center text-stone-800 font-medium">
-                        <CalendarIcon className="h-4 w-4 mr-2 text-stone-400" />
+                      <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-1">Data</p>
+                      <div className="flex items-center text-stone-800 dark:text-stone-100 font-medium">
+                        <CalendarIcon className="h-4 w-4 mr-2 text-stone-400 dark:text-stone-500" />
                         {format(selectedDate, "dd 'de' MMM", { locale: ptBR })}
                       </div>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Horário</p>
-                      <div className="flex items-center text-stone-800 font-medium">
-                        <Clock className="h-4 w-4 mr-2 text-stone-400" />
+                      <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-1">Horário</p>
+                      <div className="flex items-center text-stone-800 dark:text-stone-100 font-medium">
+                        <Clock className="h-4 w-4 mr-2 text-stone-400 dark:text-stone-500" />
                         {customTime || selectedTime}
                       </div>
                     </div>
@@ -283,13 +306,13 @@ export default function Booking() {
 
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Duração</p>
-                      <div className="text-stone-800 font-medium">
+                      <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-1">Duração</p>
+                      <div className="text-stone-800 dark:text-stone-100 font-medium">
                         {customDuration} minutos
                       </div>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Valor</p>
+                      <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-1">Valor</p>
                       <div className="text-xl font-bold text-brand-primary">
                         R$ {selectedService?.price.toFixed(2)}
                       </div>
@@ -297,8 +320,8 @@ export default function Booking() {
                   </div>
                 </div>
 
-                <div className="bg-stone-100/50 p-4 text-center border-t border-stone-200">
-                  <p className="text-[10px] text-stone-400 italic">
+                <div className="bg-stone-100/50 dark:bg-stone-800/50 p-4 text-center border-t border-stone-200 dark:border-stone-700">
+                  <p className="text-[10px] text-stone-400 dark:text-stone-500 italic">
                     O pagamento será realizado diretamente no estabelecimento.
                   </p>
                 </div>
@@ -314,7 +337,7 @@ export default function Booking() {
                 </button>
                 <button 
                   onClick={() => setStep(2)} 
-                  className="w-full py-4 text-stone-400 font-medium hover:text-stone-600 transition-colors"
+                  className="w-full py-4 text-stone-400 dark:text-stone-500 font-medium hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
                 >
                   Voltar e Editar
                 </button>
@@ -325,16 +348,16 @@ export default function Booking() {
 
         {step === 4 && (
           <div className="p-12 text-center">
-            <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-8">
-              <Check className="h-12 w-12 text-emerald-600" />
+            <div className="w-24 h-24 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-8">
+              <Check className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h2 className="text-4xl serif mb-4">Agendado!</h2>
-            <p className="text-stone-500 mb-12 max-w-md mx-auto">
+            <h2 className="text-4xl serif mb-4 text-stone-900 dark:text-stone-100">Agendado!</h2>
+            <p className="text-stone-500 dark:text-stone-400 mb-12 max-w-md mx-auto">
               Seu agendamento foi enviado para o profissional. Você receberá uma notificação assim que for confirmado.
             </p>
             <button 
               onClick={() => window.location.reload()}
-              className="bg-stone-900 text-white px-10 py-4 rounded-full font-bold"
+              className="bg-stone-900 dark:bg-stone-800 text-white px-10 py-4 rounded-full font-bold hover:bg-stone-800 dark:hover:bg-stone-700 transition-colors"
             >
               Voltar ao Início
             </button>
@@ -353,11 +376,11 @@ function StepIndicator({ current, step, label }: { current: number, step: number
     <div className="flex items-center space-x-2">
       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
         isActive ? 'bg-brand-primary text-white scale-110' : 
-        isCompleted ? 'bg-emerald-500 text-white' : 'bg-stone-100 text-stone-400'
+        isCompleted ? 'bg-emerald-500 text-white' : 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500'
       }`}>
         {isCompleted ? <Check className="h-4 w-4" /> : step}
       </div>
-      <span className={`text-sm font-medium ${isActive ? 'text-stone-800' : 'text-stone-400'}`}>{label}</span>
+      <span className={`text-sm font-medium ${isActive ? 'text-stone-800 dark:text-stone-100' : 'text-stone-400 dark:text-stone-500'}`}>{label}</span>
     </div>
   );
 }

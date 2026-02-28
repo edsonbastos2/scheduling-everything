@@ -75,53 +75,53 @@ export default function Auth({ mode, onAuthSuccess }: AuthProps) {
         className={
           mode === 'signup'
             ? "bg-brand-primary text-white px-8 py-4 rounded-full hover:bg-opacity-90 transition-all font-semibold shadow-lg shadow-brand-primary/20"
-            : "bg-white text-stone-800 border border-stone-200 px-8 py-4 rounded-full hover:bg-stone-50 transition-all font-semibold"
+            : "bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 px-8 py-4 rounded-full hover:bg-stone-50 dark:hover:bg-stone-800 transition-all font-semibold"
         }
       >
         {mode === 'signup' ? 'Começar Agora' : 'Entrar na Conta'}
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden p-8 relative">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/60 dark:bg-black/80 backdrop-blur-sm transition-colors duration-300">
+          <div className="bg-white dark:bg-stone-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden p-8 relative border border-stone-100 dark:border-stone-800">
             <button 
               onClick={() => setIsOpen(false)}
-              className="absolute top-6 right-6 text-stone-400 hover:text-stone-600"
+              className="absolute top-6 right-6 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
             >
               ✕
             </button>
             
             <div className="text-center mb-8">
-              <h2 className="text-3xl serif mb-2">{mode === 'signup' ? 'Criar Conta' : 'Bem-vindo de volta'}</h2>
-              <p className="text-stone-500">{mode === 'signup' ? 'Junte-se a milhares de profissionais' : 'Acesse seu painel de controle'}</p>
+              <h2 className="text-3xl serif mb-2 text-stone-900 dark:text-stone-100">{mode === 'signup' ? 'Criar Conta' : 'Bem-vindo de volta'}</h2>
+              <p className="text-stone-500 dark:text-stone-400">{mode === 'signup' ? 'Junte-se a milhares de profissionais' : 'Acesse seu painel de controle'}</p>
             </div>
 
             <form onSubmit={handleAuth} className="space-y-4">
               {mode === 'signup' && (
                 <>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 dark:text-stone-500" />
                     <input
                       type="text"
                       placeholder="Nome Completo"
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                      className="w-full pl-12 pr-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
                     />
                   </div>
-                  <div className="flex bg-stone-50 p-1 rounded-xl border border-stone-200">
+                  <div className="flex bg-stone-50 dark:bg-stone-800 p-1 rounded-xl border border-stone-200 dark:border-stone-700">
                     <button
                       type="button"
                       onClick={() => setRole('client')}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${role === 'client' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500'}`}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${role === 'client' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400'}`}
                     >
                       Sou Cliente
                     </button>
                     <button
                       type="button"
                       onClick={() => setRole('admin')}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${role === 'admin' ? 'bg-white shadow-sm text-brand-primary' : 'text-stone-500'}`}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${role === 'admin' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400'}`}
                     >
                       Sou Profissional
                     </button>
@@ -130,26 +130,26 @@ export default function Auth({ mode, onAuthSuccess }: AuthProps) {
               )}
               
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 dark:text-stone-500" />
                 <input
                   type="email"
                   placeholder="Seu melhor e-mail"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
                 />
               </div>
 
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 dark:text-stone-500" />
                 <input
                   type="password"
                   placeholder="Sua senha"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
                 />
               </div>
 

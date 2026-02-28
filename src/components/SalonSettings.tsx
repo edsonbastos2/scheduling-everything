@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Salon, Profile } from '../types';
-import { Save, Building, MapPin, Phone, AlignLeft } from 'lucide-react';
+import { Save, Building, MapPin, Phone, AlignLeft, Clock, Star, Info } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface SalonSettingsProps {
@@ -18,6 +18,17 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
+  const [detailedHistory, setDetailedHistory] = useState('');
+  const [differentiators, setDifferentiators] = useState('');
+  const [openingHours, setOpeningHours] = useState<Record<string, string>>({
+    'Segunda': '09:00 - 19:00',
+    'Terça': '09:00 - 19:00',
+    'Quarta': '09:00 - 19:00',
+    'Quinta': '09:00 - 19:00',
+    'Sexta': '09:00 - 19:00',
+    'Sábado': '09:00 - 19:00',
+    'Domingo': 'Fechado'
+  });
 
   useEffect(() => {
     if (profile) {
@@ -44,6 +55,11 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
         setDescription(data.description || '');
         setAddress(data.address || '');
         setPhone(data.phone || '');
+        setDetailedHistory(data.detailed_history || '');
+        setDifferentiators(data.differentiators?.join(', ') || '');
+        if (data.opening_hours) {
+          setOpeningHours(data.opening_hours);
+        }
       }
     } catch (error: any) {
       console.error('Error fetching salon:', error);
@@ -65,6 +81,9 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
         description,
         address,
         phone,
+        detailed_history: detailedHistory,
+        differentiators: differentiators.split(',').map(s => s.trim()).filter(s => s !== ''),
+        opening_hours: openingHours,
       };
 
       let error;
@@ -97,15 +116,15 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
   if (loading) return <div className="p-12 text-center">Carregando configurações...</div>;
 
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-100 max-w-2xl mx-auto">
-      <h2 className="text-2xl serif mb-8 flex items-center">
+    <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 shadow-sm border border-stone-100 dark:border-stone-800 max-w-2xl mx-auto transition-colors duration-300">
+      <h2 className="text-2xl serif mb-8 flex items-center text-stone-900 dark:text-stone-100">
         <Building className="mr-2 h-6 w-6 text-brand-primary" />
         Configurações do Salão
       </h2>
 
       <form onSubmit={handleSave} className="space-y-6">
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-stone-600 flex items-center">
+          <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
             <Building className="h-4 w-4 mr-2" /> Nome do Salão
           </label>
           <input
@@ -114,26 +133,71 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ex: Glow Beauty Studio"
-            className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+            className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-stone-600 flex items-center">
+          <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
             <AlignLeft className="h-4 w-4 mr-2" /> Descrição
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Conte um pouco sobre o seu espaço e serviços..."
-            rows={4}
-            className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all resize-none"
+            rows={2}
+            className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all resize-none dark:text-stone-100"
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
+            <Info className="h-4 w-4 mr-2" /> Nossa História (Detalhado)
+          </label>
+          <textarea
+            value={detailedHistory}
+            onChange={(e) => setDetailedHistory(e.target.value)}
+            placeholder="Conte a história do seu estabelecimento em detalhes..."
+            rows={4}
+            className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all resize-none dark:text-stone-100"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
+            <Star className="h-4 w-4 mr-2" /> Diferenciais (separados por vírgula)
+          </label>
+          <input
+            type="text"
+            value={differentiators}
+            onChange={(e) => setDifferentiators(e.target.value)}
+            placeholder="Ex: Café cortesia, Wi-Fi, Estacionamento, Ar condicionado"
+            className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
+          />
+        </div>
+
+        <div className="space-y-4">
+          <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
+            <Clock className="h-4 w-4 mr-2" /> Horário de Funcionamento
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {Object.keys(openingHours).map((day) => (
+              <div key={day} className="flex items-center justify-between bg-stone-50 dark:bg-stone-800 p-3 rounded-xl border border-stone-100 dark:border-stone-700">
+                <span className="text-xs font-bold text-stone-500 dark:text-stone-500 uppercase">{day}</span>
+                <input
+                  type="text"
+                  value={openingHours[day]}
+                  onChange={(e) => setOpeningHours({ ...openingHours, [day]: e.target.value })}
+                  className="text-xs font-bold text-stone-800 dark:text-stone-200 bg-transparent border-none focus:ring-0 text-right w-32"
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-600 flex items-center">
+            <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
               <MapPin className="h-4 w-4 mr-2" /> Endereço
             </label>
             <input
@@ -141,12 +205,12 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Rua, Número, Bairro"
-              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+              className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-600 flex items-center">
+            <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
               <Phone className="h-4 w-4 mr-2" /> Telefone
             </label>
             <input
@@ -154,7 +218,7 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="(00) 00000-0000"
-              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+              className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
             />
           </div>
         </div>

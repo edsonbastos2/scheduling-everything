@@ -7,10 +7,25 @@
   
   --color-brand-primary: #5A5A40; /* Olive */
   --color-brand-bg: #f5f5f0; /* Warm off-white */
+  --color-brand-bg-dark: #121212; /* Dark background */
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
 }
 
 body {
-  @apply bg-brand-bg text-stone-900 font-sans;
+  @apply bg-brand-bg text-stone-900 font-sans transition-colors duration-300;
+}
+
+.dark body {
+  @apply bg-brand-bg-dark text-stone-100;
 }
 
 .serif {

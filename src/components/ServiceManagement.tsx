@@ -178,19 +178,19 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
   if (loading && services.length === 0) return <div className="p-12 text-center">Carregando serviços...</div>;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 transition-colors duration-300">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl serif">Meus Serviços</h2>
-          <p className="text-stone-500">Gerencie os serviços oferecidos pelo seu estabelecimento.</p>
+          <h2 className="text-3xl serif text-stone-900 dark:text-stone-100">Meus Serviços</h2>
+          <p className="text-stone-500 dark:text-stone-400">Gerencie os serviços oferecidos pelo seu estabelecimento.</p>
         </div>
         <div className="flex items-center space-x-4">
-          <label className="flex items-center cursor-pointer text-sm text-stone-500 font-medium">
+          <label className="flex items-center cursor-pointer text-sm text-stone-500 dark:text-stone-400 font-medium">
             <input 
               type="checkbox" 
               checked={showInactive} 
               onChange={(e) => setShowInactive(e.target.checked)}
-              className="mr-2 rounded border-stone-300 text-brand-primary focus:ring-brand-primary"
+              className="mr-2 rounded border-stone-300 dark:border-stone-700 text-brand-primary focus:ring-brand-primary bg-transparent"
             />
             Mostrar inativos
           </label>
@@ -210,25 +210,25 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden relative"
+              className="bg-white dark:bg-stone-900 w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden relative border border-stone-100 dark:border-stone-800"
             >
               <button 
                 onClick={resetForm}
-                className="absolute top-6 right-6 p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-full transition-all z-10"
+                className="absolute top-6 right-6 p-2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full transition-all z-10"
               >
                 <X className="h-6 w-6" />
               </button>
 
               <div className="p-8 sm:p-10 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div className="mb-8">
-                  <h3 className="text-3xl serif text-stone-800">{editingService ? 'Editar Serviço' : 'Novo Serviço'}</h3>
-                  <p className="text-stone-500">Preencha os detalhes do serviço abaixo.</p>
+                  <h3 className="text-3xl serif text-stone-800 dark:text-stone-100">{editingService ? 'Editar Serviço' : 'Novo Serviço'}</h3>
+                  <p className="text-stone-500 dark:text-stone-400">Preencha os detalhes do serviço abaixo.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-semibold text-stone-600 flex items-center">
+                      <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
                         <Scissors className="h-4 w-4 mr-2" /> Nome do Serviço
                       </label>
                       <input
@@ -237,12 +237,12 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Ex: Corte de Cabelo Masculino"
-                        className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                        className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-semibold text-stone-600 flex items-center">
+                      <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
                         <ImageIcon className="h-4 w-4 mr-2" /> URL da Imagem (Opcional)
                       </label>
                       <input
@@ -250,7 +250,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                         value={imageUrl}
                         onChange={(e) => setImageUrl(e.target.value)}
                         placeholder="https://exemplo.com/foto.jpg"
-                        className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                        className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
                       />
                     </div>
                   </div>
@@ -258,7 +258,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm font-semibold text-stone-600 flex items-center">
+                        <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
                           <DollarSign className="h-4 w-4 mr-2" /> Preço (R$)
                         </label>
                         <input
@@ -268,17 +268,17 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                           value={price}
                           onChange={(e) => setPrice(e.target.value)}
                           placeholder="0,00"
-                          className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                          className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-semibold text-stone-600 flex items-center">
+                        <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
                           <Clock className="h-4 w-4 mr-2" /> Duração
                         </label>
                         <select
                           value={duration}
                           onChange={(e) => setDuration(e.target.value)}
-                          className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                          className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
                         >
                           <option value="15">15 min</option>
                           <option value="30">30 min</option>
@@ -291,13 +291,13 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-semibold text-stone-600 flex items-center">
+                      <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
                         <List className="h-4 w-4 mr-2" /> Categoria
                       </label>
                       <select
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                        className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
                       >
                         {categories.map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
@@ -307,7 +307,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-stone-600 flex items-center">
+                    <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
                       <AlignLeft className="h-4 w-4 mr-2" /> Descrição (Opcional)
                     </label>
                     <textarea
@@ -315,7 +315,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Descreva o que está incluso neste serviço..."
                       rows={3}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all resize-none"
+                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all resize-none dark:text-stone-100"
                     />
                   </div>
 
@@ -325,9 +325,9 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                       id="is_active"
                       checked={isActive}
                       onChange={(e) => setIsActive(e.target.checked)}
-                      className="h-5 w-5 rounded border-stone-300 text-brand-primary focus:ring-brand-primary"
+                      className="h-5 w-5 rounded border-stone-300 dark:border-stone-700 text-brand-primary focus:ring-brand-primary bg-transparent"
                     />
-                    <label htmlFor="is_active" className="text-sm font-semibold text-stone-600 cursor-pointer">
+                    <label htmlFor="is_active" className="text-sm font-semibold text-stone-600 dark:text-stone-400 cursor-pointer">
                       Serviço Ativo (disponível para agendamento)
                     </label>
                   </div>
@@ -336,7 +336,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="px-8 py-4 text-stone-500 font-bold hover:text-stone-700 transition-colors"
+                      className="px-8 py-4 text-stone-500 dark:text-stone-400 font-bold hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
                     >
                       Cancelar
                     </button>
@@ -356,13 +356,13 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredServices.length === 0 ? (
-          <div className="col-span-full py-20 text-center bg-white rounded-3xl border border-dashed border-stone-200">
-            <Scissors className="h-12 w-12 text-stone-200 mx-auto mb-4" />
-            <p className="text-stone-400 italic">Nenhum serviço {showInactive ? '' : 'ativo'} encontrado.</p>
+          <div className="col-span-full py-20 text-center bg-white dark:bg-stone-900 rounded-3xl border border-dashed border-stone-200 dark:border-stone-800">
+            <Scissors className="h-12 w-12 text-stone-200 dark:text-stone-800 mx-auto mb-4" />
+            <p className="text-stone-400 dark:text-stone-500 italic">Nenhum serviço {showInactive ? '' : 'ativo'} encontrado.</p>
           </div>
         ) : (
           filteredServices.map((service) => (
-            <div key={service.id} className={`bg-white rounded-3xl shadow-sm border border-stone-100 hover:shadow-md transition-all group overflow-hidden flex flex-col ${!service.is_active ? 'opacity-75 grayscale-[0.5]' : ''}`}>
+            <div key={service.id} className={`bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 hover:shadow-md transition-all group overflow-hidden flex flex-col ${!service.is_active ? 'opacity-75 grayscale-[0.5]' : ''}`}>
               <div className="relative h-48 overflow-hidden">
                 <img 
                   src={service.image_url || 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&q=80&w=400'} 
@@ -382,14 +382,14 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                   <button 
                     type="button"
                     onClick={(e) => { e.stopPropagation(); handleEdit(service); }}
-                    className="p-2 bg-white/90 backdrop-blur-md text-stone-600 hover:text-brand-primary rounded-xl shadow-lg transition-all"
+                    className="p-2 bg-white/90 dark:bg-stone-800/90 backdrop-blur-md text-stone-600 dark:text-stone-300 hover:text-brand-primary rounded-xl shadow-lg transition-all"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
                   <button 
                     type="button"
                     onClick={(e) => handleDelete(e, service.id)}
-                    className="p-2 bg-white/90 backdrop-blur-md text-stone-600 hover:text-red-500 rounded-xl shadow-lg transition-all"
+                    className="p-2 bg-white/90 dark:bg-stone-800/90 backdrop-blur-md text-stone-600 dark:text-stone-300 hover:text-red-500 rounded-xl shadow-lg transition-all"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -397,13 +397,13 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
               </div>
 
               <div className="p-6 flex-grow flex flex-col">
-                <h4 className="text-lg font-bold text-stone-800 mb-1">{service.name}</h4>
-                <p className="text-sm text-stone-500 line-clamp-2 mb-4 h-10">
+                <h4 className="text-lg font-bold text-stone-800 dark:text-stone-100 mb-1">{service.name}</h4>
+                <p className="text-sm text-stone-500 dark:text-stone-400 line-clamp-2 mb-4 h-10">
                   {service.description || 'Sem descrição disponível.'}
                 </p>
                 
-                <div className="mt-auto flex items-center justify-between pt-4 border-t border-stone-50">
-                  <div className="flex items-center text-stone-500 text-sm">
+                <div className="mt-auto flex items-center justify-between pt-4 border-t border-stone-50 dark:border-stone-800">
+                  <div className="flex items-center text-stone-500 dark:text-stone-400 text-sm">
                     <Clock className="h-4 w-4 mr-1" />
                     {service.duration} min
                   </div>
@@ -423,14 +423,14 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden p-8 text-center"
+              className="bg-white dark:bg-stone-900 w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden p-8 text-center border border-stone-100 dark:border-stone-800"
             >
-              <div className="bg-red-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Trash2 className="h-8 w-8 text-red-500" />
+              <div className="bg-red-50 dark:bg-red-900/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Trash2 className="h-8 w-8 text-red-500 dark:text-red-400" />
               </div>
               
-              <h3 className="text-2xl serif text-stone-800 mb-2">Excluir Serviço?</h3>
-              <p className="text-stone-500 mb-8">
+              <h3 className="text-2xl serif text-stone-800 dark:text-stone-100 mb-2">Excluir Serviço?</h3>
+              <p className="text-stone-500 dark:text-stone-400 mb-8">
                 Deseja realmente excluir este serviço? Esta ação só é permitida se não houver agendamentos vinculados.
               </p>
 
@@ -438,7 +438,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
                 <button
                   disabled={isDeleting}
                   onClick={() => setDeletingId(null)}
-                  className="flex-1 px-6 py-3 bg-stone-100 text-stone-600 rounded-xl font-bold hover:bg-stone-200 transition-all disabled:opacity-50"
+                  className="flex-1 px-6 py-3 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-xl font-bold hover:bg-stone-200 dark:hover:bg-stone-700 transition-all disabled:opacity-50"
                 >
                   Cancelar
                 </button>

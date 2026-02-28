@@ -83,7 +83,21 @@ CREATE POLICY "Admins can update salon appointments" ON appointments FOR UPDATE
 USING (EXISTS (SELECT 1 FROM salons WHERE salons.id = appointments.salon_id AND salons.owner_id = auth.uid()))
 WITH CHECK (EXISTS (SELECT 1 FROM salons WHERE salons.id = appointments.salon_id AND salons.owner_id = auth.uid()));
 
--- 7. Trigger para criar perfil automaticamente no Signup
+-- 8. Criar Tabela de Avaliações (Reviews)
+CREATE TABLE reviews (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  salon_id UUID REFERENCES salons(id) ON DELETE CASCADE,
+  client_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Reviews are viewable by everyone" ON reviews FOR SELECT USING (true);
+CREATE POLICY "Clients can create reviews" ON reviews FOR INSERT WITH CHECK (auth.uid() = client_id);
+
+-- 9. Trigger para criar perfil automaticamente no Signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN

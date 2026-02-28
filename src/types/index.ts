@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'client';
+export type UserRole = 'admin' | 'client' | 'super_admin';
 
 export interface Profile {
   id: string;
@@ -16,6 +16,10 @@ export interface Salon {
   address: string;
   phone: string;
   image_url?: string;
+  opening_hours?: Record<string, string>;
+  differentiators?: string[];
+  detailed_history?: string;
+  is_active: boolean;
 }
 
 export interface Service {
@@ -38,4 +42,17 @@ export interface Appointment {
   start_time: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   notes?: string;
+}
+
+export interface Review {
+  id: string;
+  client_id: string;
+  salon_id: string;
+  rating: number; // 1-5
+  comment: string;
+  created_at: string;
+  client?: {
+    full_name: string;
+    avatar_url?: string;
+  };
 }
