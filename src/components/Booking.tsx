@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Service, Salon, Professional } from '../types';
 import { Calendar as CalendarIcon, Clock, Scissors, Check, ChevronRight, MapPin, User } from 'lucide-react';
-import { format, addDays, startOfToday, setHours, setMinutes, isBefore } from 'date-fns';
+import { format, addDays, startOfToday, setHours, setMinutes, isBefore, isSameDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 
@@ -16,6 +16,7 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
   const [step, setStep] = useState(initialService ? 2 : 1);
   const [services, setServices] = useState<Service[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [bookedAppointments, setBookedAppointments] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
   const [selectedService, setSelectedService] = useState<Service | null>(initialService || null);
   const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
@@ -38,6 +39,12 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
     }
   }, [selectedService]);
 
+  useEffect(() => {
+    if (selectedService && selectedDate) {
+      fetchBookedAppointments();
+    }
+  }, [selectedDate, selectedService, selectedProfessional]);
+
   const fetchServices = async () => {
     const { data } = await supabase
       .from('services')
@@ -53,6 +60,57 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
       .eq('salon_id', salonId)
       .eq('is_active', true);
     if (data) setProfessionals(data);
+  };
+
+  const fetchBookedAppointments = async () => {
+    if (!selectedService?.salon_id) return;
+
+    const startOfDay = new Date(selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    let query = supabase
+      .from('appointments')
+      .select('id, start_time, professional_id')
+      .eq('salon_id', selectedService.salon_id)
+      .neq('status', 'cancelled')
+      .gte('start_time', startOfDay.toISOString())
+      .lte('start_time', endOfDay.toISOString());
+
+    if (selectedProfessional) {
+      query = query.eq('professional_id', selectedProfessional.id);
+    }
+
+    const { data } = await query;
+    if (data) setBookedAppointments(data);
+  };
+
+  const isSlotBusy = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const now = new Date();
+    
+    // Check if slot is in the past (only for today)
+    if (isSameDay(selectedDate, now)) {
+      const slotDate = new Date(selectedDate);
+      slotDate.setHours(hours, minutes, 0, 0);
+      if (isBefore(slotDate, now)) return true;
+    }
+    
+    // Check if this specific slot is taken
+    const busyAppointments = bookedAppointments.filter(apt => {
+      const aptTime = parseISO(apt.start_time);
+      return aptTime.getHours() === hours && aptTime.getMinutes() === minutes;
+    });
+
+    if (selectedProfessional) {
+      // If a professional is selected, slot is busy if they have any appointment
+      return busyAppointments.length > 0;
+    } else {
+      // If "Any Professional" is selected, slot is busy only if ALL active professionals are taken
+      // (This is a simplified check, assuming each appointment takes exactly one slot)
+      return professionals.length > 0 && busyAppointments.length >= professionals.length;
+    }
   };
 
   const timeSlots = [
@@ -283,20 +341,29 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
               <div>
                 <p className="text-sm font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Horários disponíveis</p>
                 <div className="grid grid-cols-3 gap-2 mb-6">
-                  {timeSlots.map(time => (
-                    <button
-                      key={time}
-                      onClick={() => {
-                        setSelectedTime(time);
-                        setCustomTime('');
-                      }}
-                      className={`py-3 rounded-xl text-sm font-bold transition-all ${
-                        selectedTime === time && !customTime ? 'bg-brand-primary text-white' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700'
-                      }`}
-                    >
-                      {time}
-                    </button>
-                  ))}
+                  {timeSlots.map(time => {
+                    const busy = isSlotBusy(time);
+                    return (
+                      <button
+                        key={time}
+                        disabled={busy}
+                        onClick={() => {
+                          setSelectedTime(time);
+                          setCustomTime('');
+                        }}
+                        className={`py-3 rounded-xl text-sm font-bold transition-all relative ${
+                          busy 
+                            ? 'bg-stone-100 dark:bg-stone-800/50 text-stone-300 dark:text-stone-600 cursor-not-allowed' 
+                            : selectedTime === time && !customTime 
+                              ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' 
+                              : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700'
+                        }`}
+                      >
+                        {time}
+                        {busy && <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-400 rounded-full"></span>}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <p className="text-sm font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Ou escolha um horário personalizado</p>
