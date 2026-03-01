@@ -153,7 +153,9 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
                   <div>
                     <p className="font-bold text-stone-800 dark:text-stone-100">{format(parseISO(apt.start_time), 'HH:mm')}</p>
                     <p className="text-sm text-stone-600 dark:text-stone-300">{apt.profiles?.full_name || 'Cliente'}</p>
-                    <p className="text-xs text-stone-400 dark:text-stone-500">{apt.services?.name}</p>
+                    <p className="text-xs text-stone-400 dark:text-stone-500">
+                      {apt.services?.name} {apt.professionals?.name ? `• ${apt.professionals.name}` : ''}
+                    </p>
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                     apt.status === 'confirmed' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' : 

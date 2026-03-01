@@ -11,15 +11,20 @@ import CalendarView from './CalendarView';
 import AdminBookingModal from './AdminBookingModal';
 import AnalyticsView from './AnalyticsView';
 import ReviewsView from './ReviewsView';
+import ProfessionalManagement from './ProfessionalManagement';
 
 interface DashboardProps {
   profile: Profile | null;
-  initialTab?: 'overview' | 'services' | 'settings' | 'analytics';
+  initialTab?: 'overview' | 'services' | 'settings' | 'analytics' | 'professionals';
   theme?: 'light' | 'dark';
 }
 
 export default function Dashboard({ profile, initialTab = 'overview', theme }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews'>(initialTab as any);
+  const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews' | 'professionals'>(initialTab as any);
+
+  useEffect(() => {
+    setActiveTab(initialTab as any);
+  }, [initialTab]);
   const [displayMode, setDisplayMode] = useState<'list' | 'calendar'>('calendar');
   const [showAdminBooking, setShowAdminBooking] = useState(false);
   const [salon, setSalon] = useState<Salon | null>(null);
@@ -128,7 +133,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
         // Fetch Appointments for this salon
         const { data: appointmentsData } = await supabase
           .from('appointments')
-          .select('*, profiles(full_name), services(name, price)')
+          .select('*, profiles(full_name), services(name, price), professionals(name)')
           .eq('salon_id', salonData.id)
           .order('start_time', { ascending: true });
 
@@ -221,53 +226,10 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
         </div>
       )}
 
-      <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="mb-12">
         <div>
           <h1 className="text-4xl serif mb-2 text-stone-900 dark:text-stone-100">Olá, {profile?.full_name || 'Profissional'}</h1>
           <p className="text-stone-500 dark:text-stone-400">Aqui está o que está acontecendo no seu salão hoje.</p>
-        </div>
-        
-        <div className="flex bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl border border-stone-200 dark:border-stone-700 self-start md:self-auto">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'overview' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
-            }`}
-          >
-            <LayoutDashboard className="h-4 w-4 mr-2" /> Visão Geral
-          </button>
-          <button
-            onClick={() => setActiveTab('services')}
-            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'services' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
-            }`}
-          >
-            <ListChecks className="h-4 w-4 mr-2" /> Serviços
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'analytics' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
-            }`}
-          >
-            <BarChart3 className="h-4 w-4 mr-2" /> Análises
-          </button>
-          <button
-            onClick={() => setActiveTab('reviews')}
-            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'reviews' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
-            }`}
-          >
-            <Star className="h-4 w-4 mr-2" /> Avaliações
-          </button>
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`flex items-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === 'settings' ? 'bg-white dark:bg-stone-700 shadow-sm text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
-            }`}
-          >
-            <Settings className="h-4 w-4 mr-2" /> Configurações
-          </button>
         </div>
       </header>
 
@@ -388,6 +350,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
       {activeTab === 'services' && <ServiceManagement profile={profile} salonId={salon?.id} />}
       {activeTab === 'analytics' && <AnalyticsView appointments={appointments} services={services} theme={theme} />}
       {activeTab === 'reviews' && <ReviewsView salonId={salon?.id} />}
+      {activeTab === 'professionals' && <ProfessionalManagement profile={profile} salonId={salon?.id} />}
       {activeTab === 'settings' && <SalonSettings profile={profile} />}
 
       <AdminBookingModal 

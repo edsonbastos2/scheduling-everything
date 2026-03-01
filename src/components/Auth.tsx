@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'react-hot-toast';
-import { LogIn, UserPlus, Mail, Lock, User } from 'lucide-react';
+import { LogIn, UserPlus, Mail, Lock, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 interface AuthProps {
   mode: 'login' | 'signup';
@@ -15,13 +15,22 @@ export default function Auth({ mode, onAuthSuccess }: AuthProps) {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'admin' | 'client'>('client');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (mode === 'signup') {
+      if (isRecoveryMode) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin,
+        });
+        if (error) throw error;
+        toast.success('E-mail de recuperação enviado! Verifique sua caixa de entrada.');
+        setIsRecoveryMode(false);
+      } else if (mode === 'signup') {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -92,12 +101,28 @@ export default function Auth({ mode, onAuthSuccess }: AuthProps) {
             </button>
             
             <div className="text-center mb-8">
-              <h2 className="text-3xl serif mb-2 text-stone-900 dark:text-stone-100">{mode === 'signup' ? 'Criar Conta' : 'Bem-vindo de volta'}</h2>
-              <p className="text-stone-500 dark:text-stone-400">{mode === 'signup' ? 'Junte-se a milhares de profissionais' : 'Acesse seu painel de controle'}</p>
+              {isRecoveryMode && (
+                <button 
+                  onClick={() => setIsRecoveryMode(false)}
+                  className="absolute top-6 left-6 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+              )}
+              <h2 className="text-3xl serif mb-2 text-stone-900 dark:text-stone-100">
+                {isRecoveryMode ? 'Recuperar Senha' : mode === 'signup' ? 'Criar Conta' : 'Bem-vindo de volta'}
+              </h2>
+              <p className="text-stone-500 dark:text-stone-400">
+                {isRecoveryMode 
+                  ? 'Enviaremos um link para você redefinir sua senha' 
+                  : mode === 'signup' 
+                    ? 'Junte-se a milhares de profissionais' 
+                    : 'Acesse seu painel de controle'}
+              </p>
             </div>
 
             <form onSubmit={handleAuth} className="space-y-4">
-              {mode === 'signup' && (
+              {!isRecoveryMode && mode === 'signup' && (
                 <>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 dark:text-stone-500" />
@@ -141,24 +166,47 @@ export default function Auth({ mode, onAuthSuccess }: AuthProps) {
                 />
               </div>
 
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 dark:text-stone-500" />
-                <input
-                  type="password"
-                  placeholder="Sua senha"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
-                />
-              </div>
+              {!isRecoveryMode && (
+                <>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 dark:text-stone-500" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Sua senha"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-12 pr-12 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+
+                  {mode === 'login' && (
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setIsRecoveryMode(true)}
+                        className="text-sm font-medium text-brand-primary hover:underline"
+                      >
+                        Esqueceu a senha?
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
 
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-brand-primary text-white py-4 rounded-xl font-semibold hover:bg-opacity-90 transition-all disabled:opacity-50 mt-4"
               >
-                {loading ? 'Processando...' : mode === 'signup' ? 'Criar Conta' : 'Entrar'}
+                {loading ? 'Processando...' : isRecoveryMode ? 'Enviar Link' : mode === 'signup' ? 'Criar Conta' : 'Entrar'}
               </button>
             </form>
           </div>

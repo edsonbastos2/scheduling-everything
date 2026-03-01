@@ -43,6 +43,7 @@ CREATE TABLE appointments (
   start_time TIMESTAMP WITH TIME ZONE NOT NULL,
   status TEXT CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')) DEFAULT 'pending',
   notes TEXT,
+  professional_id UUID REFERENCES professionals(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -96,6 +97,23 @@ CREATE TABLE reviews (
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Reviews are viewable by everyone" ON reviews FOR SELECT USING (true);
 CREATE POLICY "Clients can create reviews" ON reviews FOR INSERT WITH CHECK (auth.uid() = client_id);
+
+-- 10. Criar Tabela de Profissionais (Professionals)
+CREATE TABLE professionals (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  salon_id UUID REFERENCES salons(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  specialty TEXT,
+  avatar_url TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE professionals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Professionals are viewable by everyone" ON professionals FOR SELECT USING (true);
+CREATE POLICY "Admins can manage professionals of their salons" ON professionals FOR ALL USING (
+  EXISTS (SELECT 1 FROM salons WHERE salons.id = professionals.salon_id AND salons.owner_id = auth.uid())
+);
 
 -- 9. Trigger para criar perfil automaticamente no Signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()

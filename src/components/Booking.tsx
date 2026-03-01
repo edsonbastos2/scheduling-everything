@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Service, Salon } from '../types';
-import { Calendar as CalendarIcon, Clock, Scissors, Check, ChevronRight, MapPin } from 'lucide-react';
+import { Service, Salon, Professional } from '../types';
+import { Calendar as CalendarIcon, Clock, Scissors, Check, ChevronRight, MapPin, User } from 'lucide-react';
 import { format, addDays, startOfToday, setHours, setMinutes, isBefore } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
@@ -15,8 +15,10 @@ interface BookingProps {
 export default function Booking({ initialService, onSuccess, onBack }: BookingProps) {
   const [step, setStep] = useState(initialService ? 2 : 1);
   const [services, setServices] = useState<Service[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
   const [selectedService, setSelectedService] = useState<Service | null>(initialService || null);
+  const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
   const [selectedDate, setSelectedDate] = useState(startOfToday());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [customTime, setCustomTime] = useState('');
@@ -32,6 +34,7 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
   useEffect(() => {
     if (selectedService) {
       setCustomDuration(selectedService.duration);
+      fetchProfessionals(selectedService.salon_id);
     }
   }, [selectedService]);
 
@@ -41,6 +44,15 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
       .select('*, salons(name, address)')
       .eq('is_active', true);
     if (data) setServices(data as any);
+  };
+
+  const fetchProfessionals = async (salonId: string) => {
+    const { data } = await supabase
+      .from('professionals')
+      .select('*')
+      .eq('salon_id', salonId)
+      .eq('is_active', true);
+    if (data) setProfessionals(data);
   };
 
   const timeSlots = [
@@ -62,6 +74,7 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
       const { error } = await supabase.from('appointments').insert({
         client_id: user.id,
         service_id: selectedService.id,
+        professional_id: selectedProfessional?.id || null,
         start_time: startTime.toISOString(),
         status: 'pending',
         salon_id: selectedService.salon_id || 'default',
@@ -93,9 +106,11 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
         <div className="flex justify-center items-center space-x-4">
           <StepIndicator current={step} step={1} label="Serviço" />
           <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
-          <StepIndicator current={step} step={2} label="Data e Hora" />
+          <StepIndicator current={step} step={2} label="Profissional" />
           <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
-          <StepIndicator current={step} step={3} label="Confirmar" />
+          <StepIndicator current={step} step={3} label="Data e Hora" />
+          <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
+          <StepIndicator current={step} step={4} label="Confirmar" />
         </div>
       </div>
 
@@ -167,6 +182,78 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
         )}
 
         {step === 2 && (
+          <div className="p-8 sm:p-12">
+            <h2 className="text-2xl serif mb-8 text-stone-900 dark:text-stone-100">Escolha um profissional (Opcional)</h2>
+            
+            <div className="grid sm:grid-cols-2 gap-4 mb-8">
+              <button
+                onClick={() => {
+                  setSelectedProfessional(null);
+                  setStep(3);
+                }}
+                className={`flex items-center p-6 rounded-3xl border-2 transition-all text-left ${
+                  selectedProfessional === null 
+                    ? 'border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10' 
+                    : 'border-stone-100 dark:border-stone-800 hover:border-brand-primary/30'
+                }`}
+              >
+                <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center mr-4">
+                  <User className="h-6 w-6 text-stone-400" />
+                </div>
+                <div>
+                  <p className="font-bold text-stone-800 dark:text-stone-100">Qualquer Profissional</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">O primeiro disponível</p>
+                </div>
+              </button>
+
+              {professionals.map(pro => (
+                <button
+                  key={pro.id}
+                  onClick={() => {
+                    setSelectedProfessional(pro);
+                    setStep(3);
+                  }}
+                  className={`flex items-center p-6 rounded-3xl border-2 transition-all text-left ${
+                    selectedProfessional?.id === pro.id 
+                      ? 'border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10' 
+                      : 'border-stone-100 dark:border-stone-800 hover:border-brand-primary/30'
+                  }`}
+                >
+                  <div className="w-12 h-12 rounded-full overflow-hidden mr-4 border border-stone-100 dark:border-stone-800">
+                    {pro.avatar_url ? (
+                      <img src={pro.avatar_url} alt={pro.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-stone-800 text-stone-400">
+                        <User className="h-6 w-6" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold text-stone-800 dark:text-stone-100">{pro.name}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">{pro.specialty || 'Profissional'}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex justify-between">
+              <button 
+                onClick={() => setStep(1)} 
+                className="text-stone-400 dark:text-stone-500 font-medium hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+              >
+                Voltar
+              </button>
+              <button 
+                onClick={() => setStep(3)}
+                className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold shadow-lg shadow-brand-primary/20"
+              >
+                Pular
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
           <div className="p-8 sm:p-12">
             <h2 className="text-2xl serif mb-8 text-stone-900 dark:text-stone-100">Quando você quer vir?</h2>
             
@@ -242,14 +329,14 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
 
             <div className="mt-12 flex justify-between">
               <button 
-                onClick={() => initialService ? onBack?.() : setStep(1)} 
+                onClick={() => setStep(2)} 
                 className="text-stone-400 dark:text-stone-500 font-medium hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
               >
                 Voltar
               </button>
               <button 
                 disabled={!selectedTime && !customTime}
-                onClick={() => setStep(3)}
+                onClick={() => setStep(4)}
                 className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold shadow-lg shadow-brand-primary/20 disabled:opacity-50"
               >
                 Continuar
@@ -258,7 +345,7 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
           </div>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <div className="p-8 sm:p-12">
             <div className="text-center mb-10">
               <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -312,6 +399,15 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
                       </div>
                     </div>
                     <div>
+                      <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-1">Profissional</p>
+                      <div className="text-stone-800 dark:text-stone-100 font-medium truncate">
+                        {selectedProfessional?.name || 'Qualquer um'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
                       <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-1">Valor</p>
                       <div className="text-xl font-bold text-brand-primary">
                         R$ {selectedService?.price.toFixed(2)}
@@ -336,7 +432,7 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
                   {loading ? 'Processando...' : 'Finalizar Agendamento'}
                 </button>
                 <button 
-                  onClick={() => setStep(2)} 
+                  onClick={() => setStep(3)} 
                   className="w-full py-4 text-stone-400 dark:text-stone-500 font-medium hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
                 >
                   Voltar e Editar
@@ -346,7 +442,7 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
           </div>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <div className="p-12 text-center">
             <div className="w-24 h-24 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-8">
               <Check className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />

@@ -34,14 +34,27 @@ export interface Service {
   category?: string;
 }
 
+export interface Professional {
+  id: string;
+  salon_id: string;
+  name: string;
+  specialty?: string;
+  avatar_url?: string;
+  is_active: boolean;
+}
+
 export interface Appointment {
   id: string;
   client_id: string;
   salon_id: string;
   service_id: string;
+  professional_id?: string;
   start_time: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   notes?: string;
+  professional?: Professional;
+  service?: Service;
+  client?: Profile;
 }
 
 export interface Review {

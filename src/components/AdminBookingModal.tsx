@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Service, Profile } from '../types';
-import { X, Calendar as CalendarIcon, Clock, User, Scissors, Search } from 'lucide-react';
+import { Service, Profile, Professional } from '../types';
+import { X, Calendar as CalendarIcon, Clock, User, Scissors, Search, Briefcase } from 'lucide-react';
 import { format, setHours, setMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
@@ -17,12 +17,14 @@ interface AdminBookingModalProps {
 export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile, salonId }: AdminBookingModalProps) {
   const [services, setServices] = useState<Service[]>([]);
   const [clients, setClients] = useState<Profile[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Form states
   const [selectedClientId, setSelectedClientId] = useState('');
   const [selectedServiceId, setSelectedServiceId] = useState('');
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState('');
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [time, setTime] = useState('09:00');
 
@@ -49,6 +51,14 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
         .select('*')
         .eq('role', 'client');
       if (clientsData) setClients(clientsData);
+
+      // Fetch Professionals
+      const { data: professionalsData } = await supabase
+        .from('professionals')
+        .select('*')
+        .eq('salon_id', salonId)
+        .eq('is_active', true);
+      if (professionalsData) setProfessionals(professionalsData);
     } catch (error) {
       console.error('Error fetching data for admin booking:', error);
     }
@@ -74,6 +84,7 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
       const { error } = await supabase.from('appointments').insert({
         client_id: selectedClientId,
         service_id: selectedServiceId,
+        professional_id: selectedProfessionalId || null,
         start_time: startTime.toISOString(),
         status: 'confirmed', // Admins usually confirm immediately
         salon_id: salonId
@@ -95,6 +106,7 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
   const resetForm = () => {
     setSelectedClientId('');
     setSelectedServiceId('');
+    setSelectedProfessionalId('');
     setDate(format(new Date(), 'yyyy-MM-dd'));
     setTime('09:00');
   };
@@ -145,6 +157,25 @@ export default function AdminBookingModal({ isOpen, onClose, onSuccess, profile,
               {filteredClients.map(client => (
                 <option key={client.id} value={client.id} className="dark:bg-stone-900">
                   {client.full_name} ({client.email})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Professional Selection */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
+              <Briefcase className="h-4 w-4 mr-2" /> Profissional (Opcional)
+            </label>
+            <select
+              value={selectedProfessionalId}
+              onChange={(e) => setSelectedProfessionalId(e.target.value)}
+              className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all dark:text-stone-100"
+            >
+              <option value="">Qualquer profissional disponível...</option>
+              {professionals.map(pro => (
+                <option key={pro.id} value={pro.id} className="dark:bg-stone-900">
+                  {pro.name} ({pro.specialty || 'Profissional'})
                 </option>
               ))}
             </select>

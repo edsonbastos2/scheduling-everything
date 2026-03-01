@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Appointment, Profile } from '../types';
-import { Calendar, Clock, Scissors, CheckCircle, XCircle, AlertCircle, Trash2, X, Star } from 'lucide-react';
+import { Calendar, Clock, Scissors, CheckCircle, XCircle, AlertCircle, Trash2, X, Star, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -71,7 +71,7 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
     try {
       const { data, error } = await supabase
         .from('appointments')
-        .select('*, services(name, price, duration)')
+        .select('*, services(name, price, duration), professionals(name)')
         .eq('client_id', profile?.id)
         .order('start_time', { ascending: false });
 
@@ -166,6 +166,12 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
                       <Clock className="h-4 w-4 mr-1" />
                       {format(parseISO(apt.start_time), "HH:mm")} ({apt.services?.duration} min)
                     </div>
+                    {apt.professionals?.name && (
+                      <div className="flex items-center text-sm text-stone-500 dark:text-stone-400">
+                        <User className="h-4 w-4 mr-1" />
+                        {apt.professionals.name}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

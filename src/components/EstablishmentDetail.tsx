@@ -152,10 +152,10 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
             </div>
           </header>
 
-          <div className="flex border-b border-stone-100 dark:border-stone-800">
+          <div className="flex border-b border-stone-100 dark:border-stone-800 overflow-x-auto no-scrollbar whitespace-nowrap">
             <button 
               onClick={() => setActiveTab('services')}
-              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative ${
+              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
                 activeTab === 'services' ? 'text-brand-primary' : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'
               }`}
             >
@@ -164,7 +164,7 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
             </button>
             <button 
               onClick={() => setActiveTab('reviews')}
-              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative ${
+              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
                 activeTab === 'reviews' ? 'text-brand-primary' : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'
               }`}
             >
@@ -173,7 +173,7 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
             </button>
             <button 
               onClick={() => setActiveTab('about')}
-              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative ${
+              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
                 activeTab === 'about' ? 'text-brand-primary' : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'
               }`}
             >

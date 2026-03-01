@@ -7,10 +7,15 @@ import { motion, AnimatePresence } from 'motion/react';
 interface EstablishmentDiscoveryProps {
   onSelectSalon: (salonId: string) => void;
   onSelectService: (service: Service) => void;
+  initialViewMode?: 'salons' | 'services';
 }
 
-export default function EstablishmentDiscovery({ onSelectSalon, onSelectService }: EstablishmentDiscoveryProps) {
-  const [viewMode, setViewMode] = useState<'salons' | 'services'>('salons');
+export default function EstablishmentDiscovery({ onSelectSalon, onSelectService, initialViewMode = 'salons' }: EstablishmentDiscoveryProps) {
+  const [viewMode, setViewMode] = useState<'salons' | 'services'>(initialViewMode);
+
+  useEffect(() => {
+    setViewMode(initialViewMode);
+  }, [initialViewMode]);
   const [salons, setSalons] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,25 +88,6 @@ export default function EstablishmentDiscovery({ onSelectSalon, onSelectService 
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary shadow-sm transition-all dark:text-stone-100"
           />
-        </div>
-
-        <div className="flex bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl border border-stone-200 dark:border-stone-700">
-          <button
-            onClick={() => setViewMode('salons')}
-            className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-              viewMode === 'salons' ? 'bg-white dark:bg-stone-900 shadow-md text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
-            }`}
-          >
-            <Store className="h-4 w-4 mr-2" /> Estabelecimentos
-          </button>
-          <button
-            onClick={() => setViewMode('services')}
-            className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-              viewMode === 'services' ? 'bg-white dark:bg-stone-900 shadow-md text-brand-primary' : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
-            }`}
-          >
-            <Scissors className="h-4 w-4 mr-2" /> Serviços
-          </button>
         </div>
       </div>
 
