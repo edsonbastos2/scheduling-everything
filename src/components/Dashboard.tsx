@@ -34,6 +34,8 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
   const [loading, setLoading] = useState(true);
   const [showAddService, setShowAddService] = useState(false);
   const [revenueFilter, setRevenueFilter] = useState<'day' | 'month' | 'year'>('day');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   // New Service Form
   const [newServiceName, setNewServiceName] = useState('');
@@ -136,7 +138,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
           .from('appointments')
           .select('*, profiles(full_name), services(name, price), professionals(name)')
           .eq('salon_id', salonData.id)
-          .order('start_time', { ascending: true });
+          .order('start_time', { ascending: false });
 
         if (appointmentsData) setAppointments(appointmentsData as any);
       }
@@ -301,47 +303,76 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
                   {appointments.length === 0 ? (
                     <p className="text-stone-400 dark:text-stone-500 text-center py-8 italic">Nenhum agendamento encontrado.</p>
                   ) : (
-                    appointments.map((apt: any) => (
-                      <div key={apt.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-stone-50 dark:bg-stone-800/50 rounded-2xl border border-stone-100 dark:border-stone-800 hover:border-brand-primary/30 transition-all gap-4">
-                        <div className="flex items-center space-x-4">
-                          <div className="bg-white dark:bg-stone-800 p-3 rounded-xl shadow-sm shrink-0">
-                            <CalendarIcon className="h-5 w-5 text-brand-primary" />
+                    <>
+                      {appointments
+                        .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                        .map((apt: any) => (
+                          <div key={apt.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-stone-50 dark:bg-stone-800/50 rounded-2xl border border-stone-100 dark:border-stone-800 hover:border-brand-primary/30 transition-all gap-4">
+                            <div className="flex items-center space-x-4">
+                              <div className="bg-white dark:bg-stone-800 p-3 rounded-xl shadow-sm shrink-0">
+                                <CalendarIcon className="h-5 w-5 text-brand-primary" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-semibold text-stone-800 dark:text-stone-100 truncate">{apt.profiles?.full_name || 'Cliente'}</p>
+                                <p className="text-sm text-stone-500 dark:text-stone-400 truncate">{apt.services?.name} • {format(new Date(apt.start_time), "dd 'de' MMM, HH:mm", { locale: ptBR })}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between sm:justify-end space-x-2">
+                              <div className="flex space-x-1">
+                                {apt.status === 'pending' && (
+                                  <>
+                                    <button onClick={() => updateAppointmentStatus(apt.id, 'confirmed')} className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors" title="Confirmar">
+                                      <CheckCircle className="h-5 w-5" />
+                                    </button>
+                                    <button onClick={() => updateAppointmentStatus(apt.id, 'cancelled')} className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Cancelar">
+                                      <XCircle className="h-5 w-5" />
+                                    </button>
+                                  </>
+                                )}
+                                {apt.status === 'confirmed' && (
+                                  <button onClick={() => updateAppointmentStatus(apt.id, 'completed')} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Concluir Atendimento">
+                                    <CheckCircle className="h-5 w-5" />
+                                  </button>
+                                )}
+                              </div>
+                              <span className={`px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap ${
+                                apt.status === 'confirmed' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 
+                                apt.status === 'cancelled' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 
+                                apt.status === 'completed' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                              }`}>
+                                {apt.status === 'confirmed' ? 'Confirmado' : 
+                                 apt.status === 'cancelled' ? 'Cancelado' : 
+                                 apt.status === 'completed' ? 'Concluído' : 'Pendente'}
+                              </span>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-stone-800 dark:text-stone-100 truncate">{apt.profiles?.full_name || 'Cliente'}</p>
-                            <p className="text-sm text-stone-500 dark:text-stone-400 truncate">{apt.services?.name} • {format(new Date(apt.start_time), "dd 'de' MMM, HH:mm", { locale: ptBR })}</p>
+                        ))}
+                      
+                      {/* Pagination Controls */}
+                      {appointments.length > ITEMS_PER_PAGE && (
+                        <div className="flex items-center justify-between pt-6 border-t border-stone-100 dark:border-stone-800">
+                          <p className="text-sm text-stone-500 dark:text-stone-400">
+                            Mostrando {Math.min(appointments.length, (currentPage - 1) * ITEMS_PER_PAGE + 1)} a {Math.min(appointments.length, currentPage * ITEMS_PER_PAGE)} de {appointments.length} agendamentos
+                          </p>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                              disabled={currentPage === 1}
+                              className="px-4 py-2 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-xl text-sm font-bold disabled:opacity-50 hover:bg-stone-200 dark:hover:bg-stone-700 transition-all"
+                            >
+                              Anterior
+                            </button>
+                            <button
+                              onClick={() => setCurrentPage(prev => Math.min(Math.ceil(appointments.length / ITEMS_PER_PAGE), prev + 1))}
+                              disabled={currentPage === Math.ceil(appointments.length / ITEMS_PER_PAGE)}
+                              className="px-4 py-2 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-xl text-sm font-bold disabled:opacity-50 hover:bg-stone-200 dark:hover:bg-stone-700 transition-all"
+                            >
+                              Próximo
+                            </button>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between sm:justify-end space-x-2">
-                          <div className="flex space-x-1">
-                            {apt.status === 'pending' && (
-                              <>
-                                <button onClick={() => updateAppointmentStatus(apt.id, 'confirmed')} className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors" title="Confirmar">
-                                  <CheckCircle className="h-5 w-5" />
-                                </button>
-                                <button onClick={() => updateAppointmentStatus(apt.id, 'cancelled')} className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Cancelar">
-                                  <XCircle className="h-5 w-5" />
-                                </button>
-                              </>
-                            )}
-                            {apt.status === 'confirmed' && (
-                              <button onClick={() => updateAppointmentStatus(apt.id, 'completed')} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Concluir Atendimento">
-                                <CheckCircle className="h-5 w-5" />
-                              </button>
-                            )}
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap ${
-                            apt.status === 'confirmed' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 
-                            apt.status === 'cancelled' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 
-                            apt.status === 'completed' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                          }`}>
-                            {apt.status === 'confirmed' ? 'Confirmado' : 
-                             apt.status === 'cancelled' ? 'Cancelado' : 
-                             apt.status === 'completed' ? 'Concluído' : 'Pendente'}
-                          </span>
-                        </div>
-                      </div>
-                    ))
+                      )}
+                    </>
                   )}
                 </div>
               </div>
