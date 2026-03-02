@@ -43,10 +43,10 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
   const [newServiceDuration, setNewServiceDuration] = useState('30');
 
   useEffect(() => {
-    if (profile) {
+    if (profile?.id) {
       fetchData(!salon);
     }
-  }, [profile]);
+  }, [profile?.id]);
 
   useEffect(() => {
     if (!salon) return;

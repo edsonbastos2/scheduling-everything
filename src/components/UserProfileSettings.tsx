@@ -17,11 +17,11 @@ export default function UserProfileSettings({ profile, onUpdate, onBack }: UserP
 
   // Update local state when profile prop changes (e.g. after fetch completes)
   useEffect(() => {
-    if (profile) {
+    if (profile?.id) {
       setFullName(profile.full_name || '');
       setAvatarUrl(profile.avatar_url || '');
     }
-  }, [profile]);
+  }, [profile?.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

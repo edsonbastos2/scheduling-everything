@@ -15,6 +15,9 @@ CREATE TABLE salons (
   name TEXT NOT NULL,
   description TEXT,
   address TEXT,
+  city TEXT,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
   phone TEXT,
   image_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

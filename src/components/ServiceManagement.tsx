@@ -31,10 +31,10 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
   const categories = ['Masculino', 'Feminino', 'Corte de Cabelo', 'Barba', 'Unhas', 'Outros'];
 
   useEffect(() => {
-    if (profile && salonId) {
+    if (profile?.id && salonId) {
       fetchServices();
     }
-  }, [profile, salonId]);
+  }, [profile?.id, salonId]);
 
   const fetchServices = async () => {
     if (!salonId) return;

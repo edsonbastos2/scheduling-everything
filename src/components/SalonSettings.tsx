@@ -34,10 +34,10 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
   });
 
   useEffect(() => {
-    if (profile) {
+    if (profile?.id) {
       fetchSalon();
     }
-  }, [profile]);
+  }, [profile?.id]);
 
   const fetchSalon = async () => {
     setLoading(true);

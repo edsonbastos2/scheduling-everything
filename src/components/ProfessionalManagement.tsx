@@ -26,10 +26,10 @@ export default function ProfessionalManagement({ profile, salonId }: Professiona
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (profile && salonId) {
+    if (profile?.id && salonId) {
       fetchProfessionals();
     }
-  }, [profile, salonId]);
+  }, [profile?.id, salonId]);
 
   const fetchProfessionals = async () => {
     if (!salonId) return;

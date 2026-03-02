@@ -21,7 +21,7 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
   const [comment, setComment] = useState('');
 
   useEffect(() => {
-    if (profile) {
+    if (profile?.id) {
       fetchAppointments();
 
       // Subscribe to real-time changes for this client's appointments
@@ -64,7 +64,7 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
         supabase.removeChannel(channel);
       };
     }
-  }, [profile]);
+  }, [profile?.id]);
 
   const fetchAppointments = async () => {
     setLoading(true);
