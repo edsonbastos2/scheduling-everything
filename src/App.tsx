@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { Toaster, toast } from 'react-hot-toast';
-import { LogIn, UserPlus, Calendar, Settings, LogOut, Scissors, Clock, MapPin, Menu, X, User, Sun, Moon, LayoutDashboard, ListChecks, BarChart3, Star, Users } from 'lucide-react';
+import { LogIn, UserPlus, Calendar, Settings, LogOut, Scissors, Clock, MapPin, Menu, X, User, Sun, Moon, LayoutDashboard, ListChecks, BarChart3, Star, Users, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Profile, Salon, Service, Appointment } from './types';
 
@@ -24,7 +24,7 @@ export default function App() {
   const [view, setView] = useState<'home' | 'dashboard' | 'booking' | 'client_appointments' | 'profile_settings' | 'discovery' | 'salon_detail' | 'super_admin_dashboard' | 'reset_password'>('home');
   const [selectedSalonId, setSelectedSalonId] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<any>(null);
-  const [dashboardTab, setDashboardTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews'>('overview');
+  const [dashboardTab, setDashboardTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews' | 'finances'>('overview');
   const [discoveryTab, setDiscoveryTab] = useState<'salons' | 'services'>('salons');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -218,6 +218,12 @@ export default function App() {
                             label="Análises" 
                             onClick={() => { setView('dashboard'); setDashboardTab('analytics'); setIsMenuOpen(false); }} 
                             active={view === 'dashboard' && dashboardTab === 'analytics'}
+                          />
+                          <MenuLink 
+                            icon={<DollarSign className="h-5 w-5" />} 
+                            label="Financeiro" 
+                            onClick={() => { setView('dashboard'); setDashboardTab('finances'); setIsMenuOpen(false); }} 
+                            active={view === 'dashboard' && dashboardTab === 'finances'}
                           />
                           <MenuLink 
                             icon={<Star className="h-5 w-5" />} 

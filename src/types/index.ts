@@ -69,3 +69,12 @@ export interface Review {
     avatar_url?: string;
   };
 }
+
+export interface FinancialItem {
+  id: string;
+  salon_id: string;
+  type: 'fixed' | 'variable';
+  description: string;
+  amount: number;
+  created_at: string;
+}

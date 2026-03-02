@@ -12,6 +12,7 @@ import AdminBookingModal from './AdminBookingModal';
 import AnalyticsView from './AnalyticsView';
 import ReviewsView from './ReviewsView';
 import ProfessionalManagement from './ProfessionalManagement';
+import FinancialManagement from './FinancialManagement';
 
 interface DashboardProps {
   profile: Profile | null;
@@ -20,7 +21,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ profile, initialTab = 'overview', theme }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews' | 'professionals'>(initialTab as any);
+  const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews' | 'professionals' | 'finances'>(initialTab as any);
 
   useEffect(() => {
     setActiveTab(initialTab as any);
@@ -353,6 +354,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
       {activeTab === 'analytics' && <AnalyticsView appointments={appointments} services={services} theme={theme} />}
       {activeTab === 'reviews' && <ReviewsView salonId={salon?.id} />}
       {activeTab === 'professionals' && <ProfessionalManagement profile={profile} salonId={salon?.id} />}
+      {activeTab === 'finances' && <FinancialManagement salonId={salon?.id || ''} />}
       {activeTab === 'settings' && <SalonSettings profile={profile} />}
 
       <AdminBookingModal 

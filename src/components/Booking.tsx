@@ -16,6 +16,7 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
   const [step, setStep] = useState(initialService ? 2 : 1);
   const [services, setServices] = useState<Service[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [salon, setSalon] = useState<Salon | null>(null);
   const [bookedAppointments, setBookedAppointments] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
   const [selectedService, setSelectedService] = useState<Service | null>(initialService || null);
@@ -36,8 +37,18 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
     if (selectedService) {
       setCustomDuration(selectedService.duration);
       fetchProfessionals(selectedService.salon_id);
+      fetchSalon(selectedService.salon_id);
     }
   }, [selectedService]);
+
+  const fetchSalon = async (salonId: string) => {
+    const { data } = await supabase
+      .from('salons')
+      .select('*')
+      .eq('id', salonId)
+      .single();
+    if (data) setSalon(data);
+  };
 
   useEffect(() => {
     if (selectedService && selectedDate) {
@@ -72,7 +83,7 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
 
     let query = supabase
       .from('appointments')
-      .select('id, start_time, professional_id')
+      .select('id, start_time, professional_id, services(duration)')
       .eq('salon_id', selectedService.salon_id)
       .neq('status', 'cancelled')
       .gte('start_time', startOfDay.toISOString())
@@ -90,32 +101,77 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
     const [hours, minutes] = time.split(':').map(Number);
     const now = new Date();
     
+    const slotStart = new Date(selectedDate);
+    slotStart.setHours(hours, minutes, 0, 0);
+    
     // Check if slot is in the past (only for today)
     if (isSameDay(selectedDate, now)) {
-      const slotDate = new Date(selectedDate);
-      slotDate.setHours(hours, minutes, 0, 0);
-      if (isBefore(slotDate, now)) return true;
+      if (isBefore(slotStart, now)) return true;
     }
     
-    // Check if this specific slot is taken
+    // Check if this specific slot overlaps with any existing appointment
     const busyAppointments = bookedAppointments.filter(apt => {
-      const aptTime = parseISO(apt.start_time);
-      return aptTime.getHours() === hours && aptTime.getMinutes() === minutes;
+      const aptStart = parseISO(apt.start_time);
+      const duration = apt.services?.duration || 60;
+      const aptEnd = new Date(aptStart.getTime() + duration * 60000);
+      
+      // Check for overlap: slotStart is within [aptStart, aptEnd)
+      return slotStart >= aptStart && slotStart < aptEnd;
     });
 
     if (selectedProfessional) {
-      // If a professional is selected, slot is busy if they have any appointment
-      return busyAppointments.length > 0;
+      // If a professional is selected, slot is busy if they have any appointment during this time
+      return busyAppointments.some(apt => apt.professional_id === selectedProfessional.id);
     } else {
       // If "Any Professional" is selected, slot is busy only if ALL active professionals are taken
-      // (This is a simplified check, assuming each appointment takes exactly one slot)
-      return professionals.length > 0 && busyAppointments.length >= professionals.length;
+      const busyProfessionalIds = new Set(busyAppointments.map(apt => apt.professional_id).filter(Boolean));
+      return professionals.length > 0 && busyProfessionalIds.size >= professionals.length;
     }
   };
 
-  const timeSlots = [
-    '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
-  ];
+  const generateTimeSlots = () => {
+    if (!salon || !selectedService) return [];
+
+    const dayOfWeek = format(selectedDate, 'EEEE', { locale: ptBR });
+    // Map 'segunda-feira' to 'Segunda', etc.
+    const dayMap: Record<string, string> = {
+      'segunda-feira': 'Segunda',
+      'terça-feira': 'Terça',
+      'quarta-feira': 'Quarta',
+      'quinta-feira': 'Quinta',
+      'sexta-feira': 'Sexta',
+      'sábado': 'Sábado',
+      'domingo': 'Domingo'
+    };
+    
+    const capitalizedDay = dayMap[dayOfWeek.toLowerCase()] || dayOfWeek;
+    
+    const hoursStr = salon.opening_hours?.[capitalizedDay];
+    if (!hoursStr || hoursStr === 'Fechado') return [];
+
+    const [startStr, endStr] = hoursStr.split(' - ');
+    const [startH, startM] = startStr.split(':').map(Number);
+    const [endH, endM] = endStr.split(':').map(Number);
+
+    const slots = [];
+    let current = new Date(selectedDate);
+    current.setHours(startH, startM, 0, 0);
+
+    const end = new Date(selectedDate);
+    end.setHours(endH, endM, 0, 0);
+
+    // Use service duration or custom duration
+    const duration = customDuration || selectedService.duration || 60;
+
+    while (isBefore(current, end)) {
+      slots.push(format(current, 'HH:mm'));
+      current = new Date(current.getTime() + duration * 60000);
+    }
+
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
 
   const handleBooking = async () => {
     const finalTime = customTime || selectedTime;
@@ -366,30 +422,17 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
                   })}
                 </div>
 
-                <p className="text-sm font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Ou escolha um horário personalizado</p>
-                <input
-                  type="time"
-                  value={customTime}
-                  onChange={(e) => {
-                    setCustomTime(e.target.value);
-                    setSelectedTime(null);
-                  }}
-                  className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all mb-6 dark:text-stone-100"
-                />
-
-                <p className="text-sm font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Duração preferida (minutos)</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {[15, 30, 45, 60, 90, 120].map(dur => (
-                    <button
-                      key={dur}
-                      onClick={() => setCustomDuration(dur)}
-                      className={`py-2 rounded-xl text-xs font-bold transition-all ${
-                        customDuration === dur ? 'bg-brand-primary text-white' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700'
-                      }`}
-                    >
-                      {dur}m
-                    </button>
-                  ))}
+                <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-100 dark:border-stone-700">
+                  <div className="flex items-center text-stone-500 dark:text-stone-400 mb-2">
+                    <Clock className="h-4 w-4 mr-2" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Duração do Serviço</span>
+                  </div>
+                  <p className="text-lg font-bold text-stone-800 dark:text-stone-100">
+                    {selectedService?.duration} minutos
+                  </p>
+                  <p className="text-[10px] text-stone-400 dark:text-stone-500 mt-1">
+                    Tempo estimado definido pelo estabelecimento.
+                  </p>
                 </div>
               </div>
             </div>

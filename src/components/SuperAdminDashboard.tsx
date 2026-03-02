@@ -193,9 +193,9 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl serif text-stone-900 dark:text-stone-100">Painel do Administrador SaaS</h1>
-          <p className="text-stone-500 dark:text-stone-400 text-xs sm:text-base">Gerencie seus tenants e acompanhe o crescimento da plataforma.</p>
+          <p className="text-stone-500 dark:text-stone-400 text-[0.75rem] sm:text-base">Gerencie seus tenants e acompanhe o crescimento da plataforma.</p>
         </div>
-        <div className="flex items-center space-x-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-full text-[10px] sm:text-sm font-bold w-fit">
+        <div className="flex items-center space-x-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-full text-[0.65rem] sm:text-sm font-bold w-fit">
           <Activity className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           Sistema Operacional
         </div>
@@ -206,21 +206,21 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
         <StatCard 
           title="Total de Tenants" 
           value={stats.totalTenants} 
-          icon={<Store className="h-6 w-6" />} 
+          icon={<Store />} 
           trend={stats.totalTenants > 0 ? "+2 este mês" : "0"}
           color="stone"
         />
         <StatCard 
           title="Tenants Ativos" 
           value={stats.activeTenants} 
-          icon={<CheckCircle className="h-6 w-6" />} 
+          icon={<CheckCircle />} 
           trend={`${((stats.activeTenants / stats.totalTenants) * 100).toFixed(1)}% do total`}
           color="emerald"
         />
         <StatCard 
           title="Receita Global" 
           value={`R$ ${stats.totalRevenue.toLocaleString()}`} 
-          icon={<DollarSign className="h-6 w-6" />} 
+          icon={<DollarSign />} 
           trend={`+${stats.revenueGrowth}%`}
           isPositive={true}
           color="brand"
@@ -228,7 +228,7 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
         <StatCard 
           title="Agendamentos" 
           value={stats.totalAppointments} 
-          icon={<Calendar className="h-6 w-6" />} 
+          icon={<Calendar />} 
           trend={`+${stats.appointmentGrowth}%`}
           isPositive={true}
           color="amber"
@@ -238,7 +238,7 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Tenants List */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-stone-900 rounded-[32px] border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden transition-colors duration-300">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden transition-colors duration-300">
             <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h2 className="text-lg sm:text-xl font-bold text-stone-800 dark:text-stone-100 flex items-center">
                 <Users className="h-5 w-5 mr-2 text-brand-primary" /> Gerenciar Tenants
@@ -250,18 +250,18 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
                   placeholder="Buscar salão ou proprietário..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 dark:text-stone-200"
+                  className="w-full pl-10 pr-4 py-2 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-[0.85rem] focus:outline-none focus:ring-2 focus:ring-brand-primary/20 dark:text-stone-200"
                 />
               </div>
             </div>
             <div className="overflow-x-auto scrollbar-hide">
-              <table className="min-w-[700px] w-full text-left border-collapse">
+              <table className="min-w-[44rem] w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-stone-50/50 dark:bg-stone-800/50">
-                    <th className="px-6 py-4 text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Estabelecimento</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Proprietário</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Status</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Ações</th>
+                    <th className="px-6 py-4 text-[0.65rem] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Estabelecimento</th>
+                    <th className="px-6 py-4 text-[0.65rem] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Proprietário</th>
+                    <th className="px-6 py-4 text-[0.65rem] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-4 text-[0.65rem] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
@@ -315,11 +315,11 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
           </div>
 
           {/* Performance Chart */}
-          <div className="bg-white dark:bg-stone-900 rounded-[32px] border border-stone-200 dark:border-stone-800 shadow-sm p-4 sm:p-8 transition-colors duration-300 overflow-hidden">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm p-4 sm:p-8 transition-colors duration-300 overflow-hidden">
             <h3 className="text-lg sm:text-xl font-bold text-stone-800 dark:text-stone-100 mb-6 sm:mb-8 flex items-center">
               <BarChart3 className="h-5 w-5 mr-2 text-brand-primary" /> Crescimento da Plataforma
             </h3>
-            <div className="h-[250px] sm:h-[300px] w-full">
+            <div className="h-64 sm:h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -349,12 +349,12 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
 
         {/* Details Sidebar */}
         <div className="space-y-6 overflow-hidden">
-          <div className="bg-stone-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl overflow-hidden">
+          <div className="bg-stone-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl overflow-hidden">
             {selectedSalon ? (
               <div className="space-y-6 sm:space-y-8">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="text-lg sm:text-xl serif truncate">Detalhes do Tenant</h3>
-                  <span className={`px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap ${
+                  <span className={`px-2 sm:px-3 py-1 rounded-full text-[0.5rem] sm:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap ${
                     selectedSalon.is_active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
                   }`}>
                     {selectedSalon.is_active ? 'Ativo' : 'Inativo'}
@@ -373,20 +373,20 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                    <p className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">Receita</p>
+                    <p className="text-[0.65rem] font-bold text-stone-500 uppercase tracking-widest mb-1">Receita</p>
                     <p className="text-lg font-bold text-brand-primary">R$ {salonStats?.revenue.toLocaleString() || 0}</p>
                   </div>
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                    <p className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">Agendamentos</p>
+                    <p className="text-[0.65rem] font-bold text-stone-500 uppercase tracking-widest mb-1">Agendamentos</p>
                     <p className="text-lg font-bold">{salonStats?.appointments.length || 0}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-xs font-bold text-stone-500 uppercase tracking-widest">Últimos Agendamentos</p>
+                  <p className="text-[0.75rem] font-bold text-stone-500 uppercase tracking-widest">Últimos Agendamentos</p>
                   <div className="space-y-3">
                     {salonStats?.appointments.slice(0, 3).map((appt: any) => (
-                      <div key={appt.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 text-xs">
+                      <div key={appt.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 text-[0.75rem]">
                         <div>
                           <p className="font-bold">{appt.profiles?.full_name}</p>
                           <p className="text-stone-500">{appt.services?.name}</p>
@@ -427,7 +427,7 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
             )}
           </div>
 
-          <div className="bg-white dark:bg-stone-900 rounded-[32px] border border-stone-200 dark:border-stone-800 p-6 sm:p-8 shadow-sm transition-colors duration-300 overflow-hidden">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 p-6 sm:p-8 shadow-sm transition-colors duration-300 overflow-hidden">
             <h3 className="text-lg font-bold text-stone-800 dark:text-stone-100 mb-6 flex items-center">
               <TrendingUp className="h-5 w-5 mr-2 text-emerald-500" /> Insights SaaS
             </h3>
@@ -437,8 +437,8 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
                   <ArrowUpRight className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-stone-800 dark:text-stone-200 truncate">Crescimento de Receita</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-2">
+                  <p className="text-[0.85rem] font-bold text-stone-800 dark:text-stone-200 truncate">Crescimento de Receita</p>
+                  <p className="text-[0.75rem] text-stone-500 dark:text-stone-400 line-clamp-2">
                     {stats.revenueGrowth >= 0 
                       ? `A receita global cresceu ${stats.revenueGrowth}% em relação ao mês passado.`
                       : `A receita global diminuiu ${Math.abs(stats.revenueGrowth)}% em relação ao mês passado.`}
@@ -450,8 +450,8 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
                   <Store className="h-4 w-4 text-brand-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-stone-800 dark:text-stone-200 truncate">Novos Tenants</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-2">
+                  <p className="text-[0.85rem] font-bold text-stone-800 dark:text-stone-200 truncate">Novos Tenants</p>
+                  <p className="text-[0.75rem] text-stone-500 dark:text-stone-400 line-clamp-2">
                     {stats.newTenantsLast7Days} {stats.newTenantsLast7Days === 1 ? 'novo salão se cadastrou' : 'novos salões se cadastraram'} nos últimos 7 dias.
                   </p>
                 </div>
@@ -473,17 +473,17 @@ function StatCard({ title, value, icon, trend, isPositive, color }: any) {
   };
 
   return (
-    <div className="bg-white dark:bg-stone-900 p-4 sm:p-6 rounded-[32px] border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all group">
+    <div className="bg-white dark:bg-stone-900 p-4 sm:p-6 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all group">
       <div className="flex items-center justify-between mb-4">
         <div className={`p-2.5 sm:p-3 rounded-2xl transition-colors ${colors[color]}`}>
           {React.cloneElement(icon as React.ReactElement, { className: 'h-5 w-5 sm:h-6 sm:w-6' })}
         </div>
-        <div className={`flex items-center text-[10px] sm:text-xs font-bold ${isPositive ? 'text-emerald-600 dark:text-emerald-400' : isPositive === false ? 'text-red-600 dark:text-red-400' : 'text-stone-400 dark:text-stone-500'}`}>
+        <div className={`flex items-center text-[0.65rem] sm:text-xs font-bold ${isPositive ? 'text-emerald-600 dark:text-emerald-400' : isPositive === false ? 'text-red-600 dark:text-red-400' : 'text-stone-400 dark:text-stone-500'}`}>
           {isPositive ? <ArrowUpRight className="h-3 w-3 mr-1" /> : isPositive === false ? <ArrowDownRight className="h-3 w-3 mr-1" /> : null}
           {trend}
         </div>
       </div>
-      <p className="text-[10px] sm:text-sm font-medium text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-1 truncate">{title}</p>
+      <p className="text-[0.65rem] sm:text-sm font-medium text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-1 truncate">{title}</p>
       <p className="text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100 truncate">{value}</p>
     </div>
   );
