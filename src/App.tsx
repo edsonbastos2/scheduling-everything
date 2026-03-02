@@ -88,6 +88,21 @@ export default function App() {
     toast.success('Deslogado com sucesso');
   };
 
+  const handleGoHome = () => {
+    if (!session) {
+      setView('home');
+    } else if (profile) {
+      if (profile.role === 'super_admin') setView('super_admin_dashboard');
+      else if (profile.role === 'admin') setView('dashboard');
+      else setView('discovery');
+    } else {
+      setView('discovery');
+    }
+    setSelectedSalonId(null);
+    setSelectedService(null);
+    setIsMenuOpen(false);
+  };
+
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-300 ${theme === 'dark' ? 'dark bg-brand-bg-dark text-stone-100' : 'bg-brand-bg text-stone-900'}`}>
       <Toaster position="top-right" />
@@ -97,7 +112,7 @@ export default function App() {
       <nav className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center cursor-pointer" onClick={() => { setView('home'); setSelectedSalonId(null); setSelectedService(null); }}>
+            <div className="flex items-center cursor-pointer" onClick={handleGoHome}>
               <Scissors className="h-8 w-8 text-brand-primary mr-2" />
               <span className="text-2xl serif font-bold tracking-tight text-stone-800 dark:text-stone-100">GlowSchedule</span>
             </div>
@@ -179,8 +194,8 @@ export default function App() {
                   <MenuLink 
                     icon={<Scissors className="h-5 w-5" />} 
                     label="Início" 
-                    onClick={() => { setView('home'); setIsMenuOpen(false); }} 
-                    active={view === 'home'}
+                    onClick={handleGoHome} 
+                    active={view === 'home' || view === 'dashboard' || view === 'discovery' || view === 'super_admin_dashboard'}
                   />
 
                   {session ? (
