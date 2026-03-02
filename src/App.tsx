@@ -426,7 +426,10 @@ export default function App() {
             >
               <Booking 
                 initialService={selectedService} 
-                onSuccess={() => { setSelectedService(null); }}
+                onSuccess={() => { 
+                  setSelectedService(null); 
+                  setView('client_appointments');
+                }}
                 onBack={() => { 
                   setSelectedService(null); 
                   if (selectedSalonId) {

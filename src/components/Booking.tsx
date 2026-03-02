@@ -562,10 +562,10 @@ export default function Booking({ initialService, onSuccess, onBack }: BookingPr
               Seu agendamento foi enviado para o profissional. Você receberá uma notificação assim que for confirmado.
             </p>
             <button 
-              onClick={() => window.location.reload()}
+              onClick={() => onSuccess?.()}
               className="bg-stone-900 dark:bg-stone-800 text-white px-10 py-4 rounded-full font-bold hover:bg-stone-800 dark:hover:bg-stone-700 transition-colors"
             >
-              Voltar ao Início
+              Ver Meus Agendamentos
             </button>
           </div>
         )}
