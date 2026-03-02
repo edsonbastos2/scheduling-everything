@@ -14,6 +14,9 @@ export interface Salon {
   name: string;
   description: string;
   address: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
   phone: string;
   image_url?: string;
   opening_hours?: Record<string, string>;

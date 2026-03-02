@@ -20,10 +20,50 @@ export default function EstablishmentDiscovery({ onSelectSalon, onSelectService,
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
+  const [userCity, setUserCity] = useState<string | null>(null);
+  const [filterMode, setFilterMode] = useState<'nearby' | 'city' | 'all'>('all');
 
   useEffect(() => {
     fetchData();
+    getUserLocation();
   }, []);
+
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+          
+          // Try to get city name from coordinates
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const data = await response.json();
+            const city = data.address.city || data.address.town || data.address.village || data.address.suburb;
+            if (city) setUserCity(city);
+          } catch (error) {
+            console.error('Error getting city from coordinates:', error);
+          }
+        },
+        (error) => {
+          console.error('Error getting user location:', error);
+        }
+      );
+    }
+  };
+
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
 
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -59,15 +99,47 @@ export default function EstablishmentDiscovery({ onSelectSalon, onSelectService,
     }
   };
 
-  const filteredSalons = salons.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.address?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getFilteredSalons = () => {
+    let baseSalons = salons;
 
-  const filteredServices = services.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.salons?.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    // Apply location filtering if location is available
+    if (userLocation) {
+      const nearbySalons = salons.filter(s => {
+        if (s.latitude && s.longitude) {
+          const dist = calculateDistance(userLocation.lat, userLocation.lng, s.latitude, s.longitude);
+          return dist <= 20; // 20km radius
+        }
+        return false;
+      });
+
+      if (nearbySalons.length > 0) {
+        baseSalons = nearbySalons;
+      } else if (userCity) {
+        const citySalons = salons.filter(s => s.city?.toLowerCase() === userCity.toLowerCase());
+        if (citySalons.length > 0) {
+          baseSalons = citySalons;
+        }
+      }
+    }
+
+    return baseSalons.filter(s => 
+      s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.address?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  const getFilteredServices = () => {
+    const filteredSalonIds = new Set(getFilteredSalons().map(s => s.id));
+    return services.filter(s => 
+      filteredSalonIds.has(s.salon_id) && (
+        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.salons?.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  };
+
+  const filteredSalons = getFilteredSalons();
+  const filteredServices = getFilteredServices();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 transition-colors duration-300">
@@ -75,6 +147,11 @@ export default function EstablishmentDiscovery({ onSelectSalon, onSelectService,
         <h1 className="text-2xl sm:text-5xl serif mb-3 sm:mb-4 text-stone-900 dark:text-stone-100 leading-tight">Descubra o seu <span className="italic text-brand-primary">Glow</span></h1>
         <p className="text-stone-500 dark:text-stone-400 max-w-2xl mx-auto text-xs sm:text-base">
           Encontre os melhores profissionais e serviços de beleza da sua região.
+          {userCity && (
+            <span className="block mt-2 text-brand-primary font-bold">
+              Mostrando resultados em {userCity}
+            </span>
+          )}
         </p>
       </header>
 

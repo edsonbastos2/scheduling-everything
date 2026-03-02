@@ -17,6 +17,9 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [phone, setPhone] = useState('');
   const [detailedHistory, setDetailedHistory] = useState('');
   const [differentiators, setDifferentiators] = useState('');
@@ -54,6 +57,9 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
         setName(data.name);
         setDescription(data.description || '');
         setAddress(data.address || '');
+        setCity(data.city || '');
+        setLatitude(data.latitude || null);
+        setLongitude(data.longitude || null);
         setPhone(data.phone || '');
         setDetailedHistory(data.detailed_history || '');
         setDifferentiators(data.differentiators?.join(', ') || '');
@@ -80,6 +86,9 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
         name,
         description,
         address,
+        city,
+        latitude,
+        longitude,
         phone,
         detailed_history: detailedHistory,
         differentiators: differentiators.split(',').map(s => s.trim()).filter(s => s !== ''),
@@ -111,6 +120,25 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocalização não é suportada pelo seu navegador');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+        toast.success('Localização capturada com sucesso!');
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        toast.error('Não foi possível obter sua localização. Verifique as permissões.');
+      }
+    );
   };
 
   if (loading) return <div className="p-12 text-center">Carregando configurações...</div>;
@@ -211,16 +239,67 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
-              <Phone className="h-4 w-4 mr-2" /> Telefone
+              <MapPin className="h-4 w-4 mr-2" /> Cidade
             </label>
             <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="(00) 00000-0000"
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="Ex: São Paulo"
               className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
             />
           </div>
+        </div>
+
+        <div className="bg-stone-50 dark:bg-stone-800 p-6 rounded-2xl border border-stone-100 dark:border-stone-700">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-bold text-stone-700 dark:text-stone-300 uppercase tracking-widest">Geolocalização</h4>
+            <button
+              type="button"
+              onClick={handleGetCurrentLocation}
+              className="text-xs font-bold text-brand-primary hover:underline flex items-center"
+            >
+              <MapPin className="h-3 w-3 mr-1" /> Usar Minha Localização Atual
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1">Latitude</label>
+              <input
+                type="number"
+                step="any"
+                value={latitude || ''}
+                readOnly
+                className="w-full px-3 py-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg text-xs dark:text-stone-300"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1">Longitude</label>
+              <input
+                type="number"
+                step="any"
+                value={longitude || ''}
+                readOnly
+                className="w-full px-3 py-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg text-xs dark:text-stone-300"
+              />
+            </div>
+          </div>
+          <p className="text-[10px] text-stone-400 mt-3 italic">
+            A geolocalização ajuda os clientes a encontrarem seu salão por proximidade.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
+            <Phone className="h-4 w-4 mr-2" /> Telefone
+          </label>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="(00) 00000-0000"
+            className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all dark:text-stone-100"
+          />
         </div>
 
         <button

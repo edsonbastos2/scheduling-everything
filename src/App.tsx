@@ -17,6 +17,7 @@ import ResetPassword from './components/ResetPassword';
 
 import SuperAdminDashboard from './components/SuperAdminDashboard';
 import NotificationManager from './components/NotificationManager';
+import NotificationCenter, { AppNotification } from './components/NotificationCenter';
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
@@ -26,6 +27,7 @@ export default function App() {
   const [selectedService, setSelectedService] = useState<any>(null);
   const [dashboardTab, setDashboardTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews' | 'finances'>('overview');
   const [discoveryTab, setDiscoveryTab] = useState<'salons' | 'services'>('salons');
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -85,7 +87,7 @@ export default function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setView('home');
-    toast.success('Deslogado com sucesso');
+    toast.success('Deslogado com sucesso', { duration: 3000 });
   };
 
   const handleGoHome = () => {
@@ -103,10 +105,90 @@ export default function App() {
     setIsMenuOpen(false);
   };
 
+  const handleAppointmentExpired = (apt: any) => {
+    toast((t) => (
+      <div className="flex flex-col space-y-3">
+        <p className="font-bold text-sm">Seu agendamento para {apt.services?.name} expirou!</p>
+        <p className="text-xs">Deseja realizar um novo agendamento agora?</p>
+        <div className="flex space-x-2">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              // Cancel previous
+              await supabase.from('appointments').update({ status: 'cancelled' }).eq('id', apt.id);
+              // Redirect to discovery
+              setView('discovery');
+              toast.success('Agendamento anterior cancelado. Escolha um novo horário!');
+            }}
+            className="bg-brand-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold"
+          >
+            Sim, novo agendamento
+          </button>
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              // Just cancel
+              await supabase.from('appointments').update({ status: 'cancelled' }).eq('id', apt.id);
+              toast.success('Agendamento cancelado.');
+            }}
+            className="bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-200 px-3 py-1.5 rounded-lg text-xs font-bold"
+          >
+            Não, apenas cancelar
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: Infinity,
+      icon: '⏰',
+    });
+  };
+
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-300 ${theme === 'dark' ? 'dark bg-brand-bg-dark text-stone-100' : 'bg-brand-bg text-stone-900'}`}>
-      <Toaster position="top-right" />
-      <NotificationManager userId={profile?.id} role={profile?.role} />
+      <Toaster 
+        position="top-right" 
+        toastOptions={{
+          duration: 6000, // Reduced default to 6 seconds
+          style: {
+            borderRadius: '16px',
+            background: theme === 'dark' ? '#1c1917' : '#fff',
+            color: theme === 'dark' ? '#fff' : '#1c1917',
+            border: '1px solid rgba(0,0,0,0.05)',
+            padding: '12px 16px',
+          },
+        }}
+      >
+        {(t) => (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            onClick={() => toast.dismiss(t.id)}
+            className="flex items-center bg-white dark:bg-stone-900 p-4 rounded-2xl shadow-xl border border-stone-100 dark:border-stone-800 cursor-pointer group relative min-w-[250px]"
+          >
+            <div className="mr-3 text-xl">
+              {t.type === 'success' ? '✅' : t.type === 'error' ? '❌' : t.icon || '🔔'}
+            </div>
+            <div className="flex-grow pr-6">
+              <p className="text-sm font-medium text-stone-800 dark:text-stone-100">
+                {typeof t.message === 'function' ? t.message(t) : t.message}
+              </p>
+            </div>
+            <button 
+              onClick={(e) => { e.stopPropagation(); toast.dismiss(t.id); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </motion.div>
+        )}
+      </Toaster>
+      <NotificationManager 
+        userId={profile?.id} 
+        role={profile?.role} 
+        onNewNotification={(n) => setNotifications(prev => [n, ...prev])}
+        onAppointmentExpired={handleAppointmentExpired}
+      />
       
       {/* Navigation */}
       <nav className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50 transition-colors duration-300">
@@ -126,6 +208,15 @@ export default function App() {
               >
                 {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               </button>
+
+              {/* Notification Center */}
+              {session && (
+                <NotificationCenter 
+                  notifications={notifications}
+                  onClear={() => setNotifications([])}
+                  onMarkAsRead={(id) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))}
+                />
+              )}
 
               {/* Mobile Menu Button - Now the only menu */}
               <button 

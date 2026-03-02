@@ -7,11 +7,19 @@ import { Bell } from 'lucide-react';
 
 import { UserRole } from '../types';
 
-export default function NotificationManager({ userId, role }: { userId: string | undefined, role: UserRole | undefined }) {
+import { AppNotification } from './NotificationCenter';
+
+export default function NotificationManager({ userId, role, onNewNotification, onAppointmentExpired }: { 
+  userId: string | undefined, 
+  role: UserRole | undefined, 
+  onNewNotification?: (n: AppNotification) => void,
+  onAppointmentExpired?: (appointment: any) => void
+}) {
   const [lastNotified, setLastNotified] = useState<Record<string, string[]>>(() => {
     const saved = localStorage.getItem('glow_notifications');
     return saved ? JSON.parse(saved) : {};
   });
+  const [lastUrgentAlert, setLastUrgentAlert] = useState<Record<string, number>>({});
   const [salonId, setSalonId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,9 +53,9 @@ export default function NotificationManager({ userId, role }: { userId: string |
       }
     }
 
-    // 2. Initial check and then every minute
+    // 2. Initial check and then every 30 seconds to catch the 90s interval accurately
     checkAppointments();
-    const interval = setInterval(checkAppointments, 60000);
+    const interval = setInterval(checkAppointments, 30000);
 
     return () => clearInterval(interval);
   }, [userId, salonId]);
@@ -82,7 +90,7 @@ export default function NotificationManager({ userId, role }: { userId: string |
         const diffMinutes = differenceInMinutes(aptTime, now);
         const notified = lastNotified[apt.id] || [];
 
-        // Alert on the day of appointment
+        // 1. Alert on the day of appointment
         if (isSameDay(aptTime, today) && !notified.includes('day')) {
           const message = role === 'admin' 
             ? `Hoje: ${apt.profiles?.full_name} tem ${apt.services?.name} às ${formatTime(aptTime)}.`
@@ -92,14 +100,34 @@ export default function NotificationManager({ userId, role }: { userId: string |
           updateNotified(apt.id, 'day');
         }
 
-        // Alert 30 minutes before
-        if (diffMinutes <= 30 && diffMinutes > 0 && !notified.includes('30min')) {
+        // 2. Urgent alerts (20 minutes before, every 90 seconds)
+        if (role === 'client' && diffMinutes <= 20 && diffMinutes > 0) {
+          const lastUrgent = lastUrgentAlert[apt.id] || 0;
+          const timeSinceLastUrgent = Date.now() - lastUrgent;
+
+          if (timeSinceLastUrgent >= 90000) { // 90 seconds
+            const message = `Urgente: Seu agendamento (${apt.services?.name}) começa em ${diffMinutes} minutos!`;
+            sendNotification('Agendamento Próximo', message, true);
+            setLastUrgentAlert(prev => ({ ...prev, [apt.id]: Date.now() }));
+          }
+        }
+
+        // 3. Alert 30 minutes before (Standard)
+        if (diffMinutes <= 30 && diffMinutes > 20 && !notified.includes('30min')) {
           const message = role === 'admin'
             ? `Em 30 min: ${apt.profiles?.full_name} - ${apt.services?.name}.`
             : `Faltam 30 minutos para seu serviço: ${apt.services?.name}.`;
 
           sendNotification('Agendamento Próximo', message);
           updateNotified(apt.id, '30min');
+        }
+
+        // 4. Expiration logic (Time over)
+        if (role === 'client' && diffMinutes <= 0 && !notified.includes('expired')) {
+          updateNotified(apt.id, 'expired');
+          if (onAppointmentExpired) {
+            onAppointmentExpired(apt);
+          }
         }
       });
     } catch (err) {
@@ -114,7 +142,7 @@ export default function NotificationManager({ userId, role }: { userId: string |
     }));
   };
 
-  const sendNotification = (title: string, body: string) => {
+  const sendNotification = (title: string, body: string, playSound: boolean = false) => {
     // Browser Notification
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(title, {
@@ -123,16 +151,36 @@ export default function NotificationManager({ userId, role }: { userId: string |
       });
     }
 
+    if (playSound) {
+      try {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        audio.play().catch(e => console.log('Audio play blocked by browser policy', e));
+      } catch (e) {
+        console.error('Error playing notification sound:', e);
+      }
+    }
+
     // In-app Toast as fallback/extra
     toast(body, {
       icon: '🔔',
-      duration: 6000,
+      duration: 10000, // Increased duration to 10 seconds
       style: {
         borderRadius: '16px',
         background: '#1c1917',
         color: '#fff',
       },
     });
+
+    if (onNewNotification) {
+      onNewNotification({
+        id: Math.random().toString(36).substr(2, 9),
+        title,
+        message: body,
+        timestamp: new Date(),
+        type: 'info',
+        read: false
+      });
+    }
   };
 
   const formatTime = (date: Date) => {

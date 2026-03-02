@@ -28,7 +28,7 @@ export default function Auth({ mode, onAuthSuccess }: AuthProps) {
           redirectTo: window.location.origin,
         });
         if (error) throw error;
-        toast.success('E-mail de recuperação enviado! Verifique sua caixa de entrada.');
+        toast.success('E-mail de recuperação enviado! Verifique sua caixa de entrada.', { duration: 4000 });
         setIsRecoveryMode(false);
       } else if (mode === 'signup') {
         const { data, error } = await supabase.auth.signUp({
@@ -58,7 +58,7 @@ export default function Auth({ mode, onAuthSuccess }: AuthProps) {
           }
         }
         
-        toast.success('Conta criada! Você já pode entrar.');
+        toast.success('Conta criada! Você já pode entrar.', { duration: 4000 });
         setIsOpen(false); // Close modal after signup
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -66,7 +66,7 @@ export default function Auth({ mode, onAuthSuccess }: AuthProps) {
           password,
         });
         if (error) throw error;
-        toast.success('Login realizado!');
+        toast.success('Login realizado!', { duration: 3000 });
         onAuthSuccess();
       }
       setIsOpen(false);
