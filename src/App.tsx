@@ -22,7 +22,7 @@ import NotificationCenter, { AppNotification } from './components/NotificationCe
 export default function App() {
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [view, setView] = useState<'home' | 'dashboard' | 'booking' | 'client_appointments' | 'profile_settings' | 'discovery' | 'salon_detail' | 'super_admin_dashboard' | 'reset_password'>('home');
+  const [view, setView] = useState<'login' | 'dashboard' | 'booking' | 'client_appointments' | 'profile_settings' | 'discovery' | 'salon_detail' | 'super_admin_dashboard' | 'reset_password'>('discovery');
   const [selectedSalonId, setSelectedSalonId] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [dashboardTab, setDashboardTab] = useState<'overview' | 'services' | 'settings' | 'analytics' | 'reviews' | 'finances'>('overview');
@@ -74,7 +74,7 @@ export default function App() {
       // Redirect based on role ONLY if we are at home (just logged in)
       // Using functional state update to avoid stale closure issues when Supabase refreshes token
       setView(currentView => {
-        if (currentView === 'home') {
+        if (currentView === 'login' || currentView === 'discovery') {
           if (data.role === 'super_admin') {
             return 'super_admin_dashboard';
           } else if (data.role === 'admin') {
@@ -90,13 +90,13 @@ export default function App() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    setView('home');
+    setView('discovery');
     toast.success('Deslogado com sucesso', { duration: 3000 });
   };
 
   const handleGoHome = () => {
     if (!session) {
-      setView('home');
+      setView('discovery');
     } else if (profile) {
       if (profile.role === 'super_admin') setView('super_admin_dashboard');
       else if (profile.role === 'admin') setView('dashboard');
@@ -290,7 +290,7 @@ export default function App() {
                     icon={<Scissors className="h-5 w-5" />} 
                     label="Início" 
                     onClick={handleGoHome} 
-                    active={view === 'home' || view === 'dashboard' || view === 'discovery' || view === 'super_admin_dashboard'}
+                    active={view === 'login' || view === 'dashboard' || view === 'discovery' || view === 'super_admin_dashboard'}
                   />
 
                   {session ? (
@@ -381,12 +381,18 @@ export default function App() {
                       />
                     </>
                   ) : (
-                    <div className="pt-4">
+                    <div className="pt-4 flex flex-col gap-3">
                       <button 
-                        onClick={() => { setView('home'); setIsMenuOpen(false); }}
+                        onClick={() => { setView('login'); setIsMenuOpen(false); }}
+                        className="w-full bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 px-6 py-3 rounded-2xl hover:bg-stone-50 dark:hover:bg-stone-800 transition-all font-semibold"
+                      >
+                        Entrar na Conta
+                      </button>
+                      <button 
+                        onClick={() => { setView('login'); setIsMenuOpen(false); }}
                         className="w-full bg-brand-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-brand-primary/20"
                       >
-                        Entrar / Criar Conta
+                        Começar Agora
                       </button>
                     </div>
                   )}
@@ -411,51 +417,33 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-grow">
         <AnimatePresence mode="wait">
-          {view === 'home' && !session && (
+          {view === 'login' && !session && (
             <motion.div 
-              key="landing"
+              key="login"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8"
+              className="max-w-md mx-auto px-4 py-16 sm:px-6 lg:px-8"
             >
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
-                <div>
-                  <h1 className="text-6xl sm:text-7xl serif leading-tight mb-6 dark:text-stone-100">
-                    Beleza e Estilo, <br />
-                    <span className="italic text-brand-primary">Agendados.</span>
-                  </h1>
-                  <p className="text-xl text-stone-600 dark:text-stone-400 mb-8 max-w-lg">
-                    A plataforma definitiva para gerenciar seu salão ou barbearia. 
-                    Agendamentos simples, gestão eficiente e clientes satisfeitos.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Auth mode="signup" onAuthSuccess={() => setView('dashboard')} />
-                    <Auth mode="login" onAuthSuccess={() => setView('dashboard')} />
+              <div className="text-center mb-8">
+                <h1 className="text-4xl serif leading-tight mb-4 dark:text-stone-100">
+                  Bem-vindo ao <span className="italic text-brand-primary">GlowSchedule</span>
+                </h1>
+                <p className="text-stone-600 dark:text-stone-400">
+                  Faça login ou crie uma conta para realizar agendamentos.
+                </p>
+              </div>
+              <div className="flex flex-col gap-4">
+                <Auth mode="login" onAuthSuccess={() => setView('discovery')} inline={true} />
+                <div className="relative py-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-stone-200 dark:border-stone-700"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-brand-bg dark:bg-brand-bg-dark text-stone-500">Ou</span>
                   </div>
                 </div>
-                <div className="relative">
-                  <div className="aspect-[3/4] rounded-[32px] overflow-hidden shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500">
-                    <img 
-                      src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=800" 
-                      alt="Salon" 
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <div className="absolute -bottom-6 -left-6 bg-white dark:bg-stone-800 p-6 rounded-2xl shadow-xl max-w-xs hidden sm:block border border-stone-100 dark:border-stone-700">
-                    <div className="flex items-center mb-2">
-                      <div className="flex -space-x-2">
-                        {[1,2,3].map(i => (
-                          <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-stone-800 bg-stone-200 dark:bg-stone-700 overflow-hidden">
-                            <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
-                          </div>
-                        ))}
-                      </div>
-                      <span className="ml-4 text-sm font-medium dark:text-stone-300">+500 agendamentos hoje</span>
-                    </div>
-                  </div>
-                </div>
+                <Auth mode="signup" onAuthSuccess={() => setView('discovery')} inline={true} />
               </div>
             </motion.div>
           )}
@@ -482,7 +470,7 @@ export default function App() {
             </motion.div>
           )}
 
-          {session && view === 'discovery' && (
+          {view === 'discovery' && (
             <motion.div 
               key="discovery"
               initial={{ opacity: 0 }}
@@ -492,12 +480,20 @@ export default function App() {
               <EstablishmentDiscovery 
                 initialViewMode={discoveryTab}
                 onSelectSalon={(id) => { setSelectedSalonId(id); setView('salon_detail'); }}
-                onSelectService={(service) => { setSelectedService(service); setView('booking'); }}
+                onSelectService={(service) => { 
+                  if (session) {
+                    setSelectedService(service); 
+                    setView('booking'); 
+                  } else {
+                    toast.error('Faça login para agendar um serviço');
+                    setView('login');
+                  }
+                }}
               />
             </motion.div>
           )}
 
-          {session && view === 'salon_detail' && (
+          {view === 'salon_detail' && (
             <motion.div 
               key="salon_detail"
               initial={{ opacity: 0 }}
@@ -507,7 +503,15 @@ export default function App() {
               <EstablishmentDetail 
                 salonId={selectedSalonId!} 
                 onBack={() => { setSelectedSalonId(null); setView('discovery'); }}
-                onSelectService={(service) => { setSelectedService(service); setView('booking'); }}
+                onSelectService={(service) => { 
+                  if (session) {
+                    setSelectedService(service); 
+                    setView('booking'); 
+                  } else {
+                    toast.error('Faça login para agendar um serviço');
+                    setView('login');
+                  }
+                }}
               />
             </motion.div>
           )}
