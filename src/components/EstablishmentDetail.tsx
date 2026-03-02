@@ -41,8 +41,8 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
     }
   };
 
-  const fetchSalonData = async () => {
-    setLoading(true);
+  const fetchSalonData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data: salonData } = await supabase
         .from('salons')
@@ -68,7 +68,7 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
     } catch (error) {
       console.error('Error fetching salon detail:', error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -105,7 +105,7 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
       toast.success('Avaliação enviada com sucesso!');
       setNewComment('');
       setNewRating(5);
-      fetchSalonData();
+      fetchSalonData(false);
     } catch (error: any) {
       toast.error('Erro ao enviar avaliação: ' + error.message);
     } finally {

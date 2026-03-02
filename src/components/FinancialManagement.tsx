@@ -32,8 +32,8 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
     }
   }, [salonId]);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data: financialData } = await supabase
         .from('salon_finances')
@@ -51,7 +51,7 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
     } catch (error) {
       console.error('Error fetching financial data:', error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -70,7 +70,7 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
       toast.success('Item adicionado com sucesso!');
       setDescription('');
       setAmount('');
-      fetchData();
+      fetchData(false);
     } catch (error: any) {
       toast.error('Erro ao adicionar item: Verifique se a tabela salon_finances existe.');
     } finally {
@@ -87,7 +87,7 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
 
       if (error) throw error;
       toast.success('Item removido');
-      fetchData();
+      fetchData(false);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -124,7 +124,7 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
       if (error) throw error;
       toast.success('Item atualizado!');
       setEditingId(null);
-      fetchData();
+      fetchData(false);
     } catch (error: any) {
       toast.error('Erro ao atualizar item');
     } finally {

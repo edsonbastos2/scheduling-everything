@@ -74,7 +74,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
                 color: '#fff',
               },
             });
-            fetchData();
+            fetchData(false);
           }
         }
       )
@@ -101,7 +101,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
                 color: '#fff',
               },
             });
-            fetchData();
+            fetchData(false);
           }
         }
       )
@@ -145,7 +145,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -166,7 +166,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
       if (error) throw error;
       toast.success('Serviço adicionado!');
       setShowAddService(false);
-      fetchData();
+      fetchData(false);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -181,7 +181,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
 
       if (error) throw error;
       toast.success('Status atualizado!');
-      fetchData();
+      fetchData(false);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -391,7 +391,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
       <AdminBookingModal 
         isOpen={showAdminBooking}
         onClose={() => setShowAdminBooking(false)}
-        onSuccess={fetchData}
+        onSuccess={() => fetchData(false)}
         profile={profile}
         salonId={salon?.id}
       />

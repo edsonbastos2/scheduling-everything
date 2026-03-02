@@ -31,9 +31,9 @@ export default function ProfessionalManagement({ profile, salonId }: Professiona
     }
   }, [profile?.id, salonId]);
 
-  const fetchProfessionals = async () => {
+  const fetchProfessionals = async (showLoading = true) => {
     if (!salonId) return;
-    setLoading(true);
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('professionals')
@@ -46,7 +46,7 @@ export default function ProfessionalManagement({ profile, salonId }: Professiona
     } catch (error: any) {
       toast.error('Erro ao carregar profissionais');
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -82,7 +82,7 @@ export default function ProfessionalManagement({ profile, salonId }: Professiona
       }
 
       resetForm();
-      fetchProfessionals();
+      fetchProfessionals(false);
     } catch (error: any) {
       console.error('Error saving professional:', error);
       toast.error('Erro ao salvar profissional');
@@ -128,7 +128,7 @@ export default function ProfessionalManagement({ profile, salonId }: Professiona
       
       toast.success('Profissional removido com sucesso!', { id: toastId });
       setDeletingId(null);
-      await fetchProfessionals();
+      await fetchProfessionals(false);
     } catch (error: any) {
       toast.error('Erro ao excluir profissional', { id: toastId });
     } finally {

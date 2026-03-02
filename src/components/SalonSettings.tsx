@@ -39,8 +39,8 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
     }
   }, [profile?.id]);
 
-  const fetchSalon = async () => {
-    setLoading(true);
+  const fetchSalon = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('salons')
@@ -71,7 +71,7 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
       console.error('Error fetching salon:', error);
       toast.error('Erro ao carregar dados do salão');
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -114,7 +114,7 @@ export default function SalonSettings({ profile }: SalonSettingsProps) {
       if (error) throw error;
       
       toast.success('Configurações salvas com sucesso!');
-      fetchSalon();
+      fetchSalon(false);
     } catch (error: any) {
       toast.error(error.message);
     } finally {

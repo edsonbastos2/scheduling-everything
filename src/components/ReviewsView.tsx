@@ -18,8 +18,8 @@ export default function ReviewsView({ salonId }: ReviewsViewProps) {
     }
   }, [salonId]);
 
-  const fetchReviews = async () => {
-    setLoading(true);
+  const fetchReviews = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('reviews')
@@ -32,7 +32,7 @@ export default function ReviewsView({ salonId }: ReviewsViewProps) {
     } catch (error) {
       console.error('Error fetching reviews:', error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 

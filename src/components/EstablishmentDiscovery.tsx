@@ -95,7 +95,7 @@ export default function EstablishmentDiscovery({ onSelectSalon, onSelectService,
     } catch (error) {
       console.error('Error fetching discovery data:', error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 

@@ -151,7 +151,7 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
       if (error) throw error;
 
       toast.success(`Estabelecimento ${!currentStatus ? 'ativado' : 'desativado'} com sucesso`);
-      fetchGlobalData();
+      fetchGlobalData(false);
       if (selectedSalon?.id === salonId) {
         setSelectedSalon({ ...selectedSalon, is_active: !currentStatus });
       }

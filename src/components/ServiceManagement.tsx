@@ -36,9 +36,9 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
     }
   }, [profile?.id, salonId]);
 
-  const fetchServices = async () => {
+  const fetchServices = async (showLoading = true) => {
     if (!salonId) return;
-    setLoading(true);
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('services')
@@ -51,7 +51,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
     } catch (error: any) {
       toast.error('Erro ao carregar serviços');
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -90,7 +90,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
       }
 
       resetForm();
-      fetchServices();
+      fetchServices(false);
     } catch (error: any) {
       console.error('Error saving service:', error);
       toast.error('Erro ao salvar serviço');
@@ -138,7 +138,7 @@ export default function ServiceManagement({ profile, salonId }: ServiceManagemen
       
       toast.success('Serviço removido com sucesso!', { id: toastId });
       setDeletingId(null);
-      await fetchServices();
+      await fetchServices(false);
     } catch (error: any) {
       console.error('Erro ao excluir serviço:', error);
       toast.error(error.message || 'Erro ao processar exclusão. Verifique se você tem permissão.', { id: toastId });

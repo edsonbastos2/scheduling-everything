@@ -54,7 +54,7 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
                   color: '#fff',
                 },
               });
-              fetchAppointments();
+              fetchAppointments(false);
             }
           }
         )
@@ -66,8 +66,8 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
     }
   }, [profile?.id]);
 
-  const fetchAppointments = async () => {
-    setLoading(true);
+  const fetchAppointments = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('appointments')
@@ -80,7 +80,7 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
     } catch (error) {
       console.error('Error fetching client appointments:', error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -124,7 +124,7 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
 
       toast.success('Agendamento cancelado com sucesso', { id: toastId });
       setCancellingId(null);
-      await fetchAppointments();
+      await fetchAppointments(false);
     } catch (error: any) {
       console.error('Error cancelling:', error);
       toast.error(error.message || 'Erro ao cancelar agendamento', { id: toastId });
