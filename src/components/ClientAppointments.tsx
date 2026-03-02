@@ -137,9 +137,9 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 transition-colors duration-300">
-      <header className="mb-12">
-        <h1 className="text-4xl serif mb-2 text-stone-900 dark:text-stone-100">Meus Agendamentos</h1>
-        <p className="text-stone-500 dark:text-stone-400">Acompanhe o status dos seus pedidos de reserva.</p>
+      <header className="mb-8 sm:mb-12">
+        <h1 className="text-2xl sm:text-4xl serif mb-2 text-stone-900 dark:text-stone-100">Meus Agendamentos</h1>
+        <p className="text-stone-500 dark:text-stone-400 text-sm sm:text-base">Acompanhe o status dos seus pedidos de reserva.</p>
       </header>
 
       <div className="space-y-6">
@@ -150,25 +150,25 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
           </div>
         ) : (
           appointments.map((apt) => (
-            <div key={apt.id} className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-sm border border-stone-100 dark:border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-all">
-              <div className="flex items-center space-x-6">
-                <div className="p-4 bg-stone-50 dark:bg-stone-800 rounded-2xl">
-                  <Scissors className="h-6 w-6 text-brand-primary" />
+            <div key={apt.id} className="bg-white dark:bg-stone-900 rounded-3xl p-4 sm:p-6 shadow-sm border border-stone-100 dark:border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-all">
+              <div className="flex items-center space-x-4 sm:space-x-6">
+                <div className="p-3 sm:p-4 bg-stone-50 dark:bg-stone-800 rounded-2xl shrink-0">
+                  <Scissors className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100">{apt.services?.name}</h3>
-                  <div className="flex flex-wrap gap-4 mt-1">
-                    <div className="flex items-center text-sm text-stone-500 dark:text-stone-400">
-                      <Calendar className="h-4 w-4 mr-1" />
+                <div className="min-w-0">
+                  <h3 className="text-lg sm:text-xl font-bold text-stone-800 dark:text-stone-100 truncate">{apt.services?.name}</h3>
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 mt-1">
+                    <div className="flex items-center text-[10px] sm:text-sm text-stone-500 dark:text-stone-400">
+                      <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
                       {format(parseISO(apt.start_time), "dd 'de' MMMM", { locale: ptBR })}
                     </div>
-                    <div className="flex items-center text-sm text-stone-500 dark:text-stone-400">
-                      <Clock className="h-4 w-4 mr-1" />
+                    <div className="flex items-center text-[10px] sm:text-sm text-stone-500 dark:text-stone-400">
+                      <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
                       {format(parseISO(apt.start_time), "HH:mm")} ({apt.services?.duration} min)
                     </div>
                     {apt.professionals?.name && (
-                      <div className="flex items-center text-sm text-stone-500 dark:text-stone-400">
-                        <User className="h-4 w-4 mr-1" />
+                      <div className="flex items-center text-[10px] sm:text-sm text-stone-500 dark:text-stone-400">
+                        <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
                         {apt.professionals.name}
                       </div>
                     )}
@@ -177,51 +177,53 @@ export default function ClientAppointments({ profile }: ClientAppointmentsProps)
               </div>
 
               <div className="flex items-center justify-between md:justify-end md:space-x-8 border-t md:border-t-0 pt-4 md:pt-0 border-stone-100 dark:border-stone-800">
-                {apt.status === 'completed' && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setReviewingApt(apt);
-                    }}
-                    className="flex items-center text-xs font-bold text-brand-primary hover:text-brand-primary/80 transition-colors uppercase tracking-wider"
-                  >
-                    <Star className="h-4 w-4 mr-1" /> Avaliar
-                  </button>
-                )}
-                {(apt.status === 'pending' || apt.status === 'confirmed') && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setCancellingId(apt.id);
-                    }}
-                    className="flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" /> Cancelar
-                  </button>
-                )}
-                
-                <div className="text-right">
-                  <p className="text-xs text-stone-400 dark:text-stone-500 uppercase font-bold tracking-wider">Valor</p>
-                  <p className="text-lg font-bold text-brand-primary">R$ {apt.services?.price.toFixed(2)}</p>
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  {apt.status === 'completed' && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setReviewingApt(apt);
+                      }}
+                      className="flex items-center text-[10px] sm:text-xs font-bold text-brand-primary hover:text-brand-primary/80 transition-colors uppercase tracking-wider"
+                    >
+                      <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Avaliar
+                    </button>
+                  )}
+                  {(apt.status === 'pending' || apt.status === 'confirmed') && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setCancellingId(apt.id);
+                      }}
+                      className="flex items-center text-[10px] sm:text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Cancelar
+                    </button>
+                  )}
                 </div>
                 
-                <div className={`flex items-center px-4 py-2 rounded-full text-sm font-bold ${
+                <div className="text-right">
+                  <p className="text-[10px] text-stone-400 dark:text-stone-500 uppercase font-bold tracking-wider">Valor</p>
+                  <p className="text-base sm:text-lg font-bold text-brand-primary whitespace-nowrap">R$ {apt.services?.price.toFixed(2)}</p>
+                </div>
+                
+                <div className={`flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-sm font-bold whitespace-nowrap ${
                   apt.status === 'confirmed' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 
                   apt.status === 'cancelled' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 
                   apt.status === 'completed' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                 }`}>
                   {apt.status === 'confirmed' ? (
-                    <><CheckCircle className="h-4 w-4 mr-2" /> Confirmado</>
+                    <><CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Confirmado</>
                   ) : apt.status === 'cancelled' ? (
-                    <><XCircle className="h-4 w-4 mr-2" /> Cancelado</>
+                    <><XCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Cancelado</>
                   ) : apt.status === 'completed' ? (
-                    <><CheckCircle className="h-4 w-4 mr-2" /> Concluído</>
+                    <><CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Concluído</>
                   ) : (
-                    <><AlertCircle className="h-4 w-4 mr-2" /> Pendente</>
+                    <><AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Pendente</>
                   )}
                 </div>
               </div>

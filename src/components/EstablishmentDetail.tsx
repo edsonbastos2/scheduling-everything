@@ -129,25 +129,25 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
 
       <div className="grid lg:grid-cols-3 gap-12">
         {/* Left Column: Salon Info */}
-        <div className="lg:col-span-2 space-y-12">
-          <header className="relative h-[400px] rounded-[40px] overflow-hidden shadow-2xl group">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-12">
+          <header className="relative h-[200px] sm:h-[400px] rounded-[24px] sm:rounded-[40px] overflow-hidden shadow-2xl group">
             <img 
               src={salon.image_url || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1200'} 
               alt={salon.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-12">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="bg-brand-primary text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest">Aberto agora</div>
-                <div className="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center">
-                  <Star className="h-3 w-3 text-amber-400 fill-amber-400 mr-1" /> {avgRating.toFixed(1)} ({reviews.length} avaliações)
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-4 sm:p-12">
+              <div className="flex items-center space-x-2 mb-2 sm:mb-4">
+                <div className="bg-brand-primary text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg text-[0.5rem] sm:text-[10px] font-bold uppercase tracking-widest">Aberto agora</div>
+                <div className="bg-white/20 backdrop-blur-md text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg text-[0.5rem] sm:text-[10px] font-bold uppercase tracking-widest flex items-center">
+                  <Star className="h-2 w-2 sm:h-3 sm:w-3 text-amber-400 fill-amber-400 mr-1" /> {avgRating.toFixed(1)} ({reviews.length})
                 </div>
               </div>
-              <h1 className="text-5xl serif text-white mb-4">{salon.name}</h1>
-              <div className="flex flex-wrap gap-6 text-white/80 text-sm">
-                <div className="flex items-center"><MapPin className="h-4 w-4 mr-2 text-brand-primary" /> {salon.address || 'Endereço não informado'}</div>
-                <div className="flex items-center"><Phone className="h-4 w-4 mr-2 text-brand-primary" /> {salon.phone || 'Telefone não informado'}</div>
+              <h1 className="text-[1.25rem] sm:text-5xl serif text-white mb-2 sm:mb-4 leading-tight line-clamp-2">{salon.name}</h1>
+              <div className="flex flex-wrap gap-2 sm:gap-6 text-white/80 text-[0.65rem] sm:text-sm">
+                <div className="flex items-center"><MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-brand-primary shrink-0" /> <span className="truncate">{salon.address || 'Endereço não informado'}</span></div>
+                <div className="flex items-center"><Phone className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-brand-primary shrink-0" /> <span>{salon.phone || 'Telefone não informado'}</span></div>
               </div>
             </div>
           </header>
@@ -155,7 +155,7 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
           <div className="flex border-b border-stone-100 dark:border-stone-800 overflow-x-auto no-scrollbar whitespace-nowrap">
             <button 
               onClick={() => setActiveTab('services')}
-              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
+              className={`px-4 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
                 activeTab === 'services' ? 'text-brand-primary' : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'
               }`}
             >
@@ -164,7 +164,7 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
             </button>
             <button 
               onClick={() => setActiveTab('reviews')}
-              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
+              className={`px-4 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
                 activeTab === 'reviews' ? 'text-brand-primary' : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'
               }`}
             >
@@ -173,7 +173,7 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
             </button>
             <button 
               onClick={() => setActiveTab('about')}
-              className={`px-8 py-4 text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
+              className={`px-4 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all relative flex-shrink-0 ${
                 activeTab === 'about' ? 'text-brand-primary' : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'
               }`}
             >
@@ -197,26 +197,26 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
                   services.map((service) => (
                     <div 
                       key={service.id} 
-                      className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-100 dark:border-stone-800 flex items-center justify-between hover:shadow-md transition-all group"
+                      className="bg-white dark:bg-stone-900 p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl border border-stone-100 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between hover:shadow-md transition-all group gap-3 sm:gap-4 w-full"
                     >
-                      <div className="flex items-center space-x-6">
-                        <div className="p-4 bg-stone-50 dark:bg-stone-800 rounded-2xl group-hover:bg-brand-primary/10 transition-colors">
-                          <Scissors className="h-6 w-6 text-brand-primary" />
+                      <div className="flex items-center space-x-3 sm:space-x-6 min-w-0">
+                        <div className="p-2 sm:p-4 bg-stone-50 dark:bg-stone-800 rounded-xl sm:rounded-2xl group-hover:bg-brand-primary/10 transition-colors shrink-0">
+                          <Scissors className="h-4 w-4 sm:h-6 sm:w-6 text-brand-primary" />
                         </div>
-                        <div>
-                          <h4 className="text-xl font-bold text-stone-800 dark:text-stone-100">{service.name}</h4>
-                          <div className="flex items-center text-sm text-stone-500 dark:text-stone-400 mt-1">
-                            <Clock className="h-4 w-4 mr-1" /> {service.duration} min
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-[0.95rem] sm:text-xl font-bold text-stone-800 dark:text-stone-100 truncate leading-tight">{service.name}</h4>
+                          <div className="flex items-center text-[0.65rem] sm:text-sm text-stone-500 dark:text-stone-400 mt-0.5 sm:mt-1">
+                            <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" /> {service.duration} min
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-8">
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-brand-primary">R$ {service.price.toFixed(2)}</p>
+                      <div className="flex items-center justify-between sm:justify-end space-x-4 sm:space-x-8 border-t sm:border-t-0 pt-3 sm:pt-0 border-stone-50 dark:border-stone-800 w-full sm:w-auto">
+                        <div className="text-left sm:text-right">
+                          <p className="text-lg sm:text-2xl font-bold text-brand-primary">R$ {service.price.toFixed(2)}</p>
                         </div>
                         <button 
                           onClick={() => onSelectService(service)}
-                          className="bg-stone-900 dark:bg-stone-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-primary transition-all shadow-lg shadow-stone-900/10"
+                          className="bg-stone-900 dark:bg-stone-800 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold hover:bg-brand-primary transition-all shadow-lg shadow-stone-900/10 text-[0.75rem] sm:text-base whitespace-nowrap"
                         >
                           Agendar
                         </button>
@@ -237,25 +237,27 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
               >
                 {/* Review Form */}
                 {user?.role === 'client' && (
-                  <div className="bg-stone-50 dark:bg-stone-900/50 p-8 rounded-[32px] border border-stone-100 dark:border-stone-800">
-                    <h4 className="text-xl serif text-stone-800 dark:text-stone-100 mb-6">Deixe sua avaliação</h4>
+                  <div className="bg-stone-50 dark:bg-stone-900/50 p-6 sm:p-8 rounded-[32px] border border-stone-100 dark:border-stone-800">
+                    <h4 className="text-lg sm:text-xl serif text-stone-800 dark:text-stone-100 mb-6">Deixe sua avaliação</h4>
                     <form onSubmit={handleSubmitReview} className="space-y-6">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mr-4">Sua nota:</span>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setNewRating(star)}
-                            className="focus:outline-none transition-transform hover:scale-110"
-                          >
-                            <Star
-                              className={`h-8 w-8 ${
-                                star <= newRating ? 'text-amber-400 fill-amber-400' : 'text-stone-300 dark:text-stone-700'
-                              }`}
-                            />
-                          </button>
-                        ))}
+                      <div className="flex items-center space-x-2 flex-wrap gap-y-4">
+                        <span className="text-xs sm:text-sm font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mr-2 sm:mr-4">Sua nota:</span>
+                        <div className="flex space-x-1 sm:space-x-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setNewRating(star)}
+                              className="focus:outline-none transition-transform hover:scale-110"
+                            >
+                              <Star
+                                className={`h-6 w-6 sm:h-8 sm:w-8 ${
+                                  star <= newRating ? 'text-amber-400 fill-amber-400' : 'text-stone-300 dark:text-stone-700'
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
                       </div>
                       <div className="relative">
                         <textarea
@@ -334,25 +336,25 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-8"
               >
-                <div className="bg-stone-50 dark:bg-stone-900/50 p-8 rounded-[32px] border border-stone-100 dark:border-stone-800">
-                  <h4 className="text-xl serif text-stone-800 dark:text-stone-100 mb-4 flex items-center">
+                <div className="bg-stone-50 dark:bg-stone-900/50 p-6 sm:p-8 rounded-[32px] border border-stone-100 dark:border-stone-800">
+                  <h4 className="text-lg sm:text-xl serif text-stone-800 dark:text-stone-100 mb-4 flex items-center">
                     <span className="p-2 bg-brand-primary/10 rounded-lg mr-3">
                       <Info className="h-5 w-5 text-brand-primary" />
                     </span>
                     Nossa História
                   </h4>
-                  <p className="text-stone-600 dark:text-stone-400 leading-relaxed italic">
-                    {salon.detailed_history || salon.description || 'Um espaço dedicado à sua beleza e bem-estar, focado em oferecer a melhor experiência possível para nossos clientes.'}
+                  <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed italic">
+                    {salon.detailed_history || salon.description || 'Um espaço dedicado à sua beleza e bem-estar, focado em oferecer a melhor experiênca possível para nossos clientes.'}
                   </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="p-8 bg-white dark:bg-stone-900 rounded-[32px] border border-stone-100 dark:border-stone-800 shadow-sm">
-                    <h4 className="text-lg font-bold text-stone-800 dark:text-stone-100 mb-4">Horário de Funcionamento</h4>
+                <div className="grid md:grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-2">
+                  <div className="p-6 sm:p-8 bg-white dark:bg-stone-900 rounded-[32px] border border-stone-100 dark:border-stone-800 shadow-sm">
+                    <h4 className="text-base sm:text-lg font-bold text-stone-800 dark:text-stone-100 mb-4">Horário de Funcionamento</h4>
                     <ul className="space-y-3">
                       {salon.opening_hours ? (
                         Object.entries(salon.opening_hours).map(([day, hours]) => (
-                          <li key={day} className="flex justify-between text-sm">
+                          <li key={day} className="flex justify-between text-xs sm:text-sm">
                             <span className="text-stone-500 dark:text-stone-400">{day}</span>
                             <span className={`font-bold ${(hours as string).toLowerCase().includes('fechado') ? 'text-red-400' : 'text-stone-800 dark:text-stone-100'}`}>
                               {hours as string}
@@ -361,7 +363,7 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
                         ))
                       ) : (
                         ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'].map(day => (
-                          <li key={day} className="flex justify-between text-sm">
+                          <li key={day} className="flex justify-between text-xs sm:text-sm">
                             <span className="text-stone-500 dark:text-stone-400">{day}</span>
                             <span className="font-bold text-stone-800 dark:text-stone-100">09:00 - 19:00</span>
                           </li>
@@ -369,19 +371,19 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
                       )}
                     </ul>
                   </div>
-                  <div className="p-8 bg-white dark:bg-stone-900 rounded-[32px] border border-stone-100 dark:border-stone-800 shadow-sm">
-                    <h4 className="text-lg font-bold text-stone-800 dark:text-stone-100 mb-4">Diferenciais</h4>
+                  <div className="p-6 sm:p-8 bg-white dark:bg-stone-900 rounded-[32px] border border-stone-100 dark:border-stone-800 shadow-sm">
+                    <h4 className="text-base sm:text-lg font-bold text-stone-800 dark:text-stone-100 mb-4">Diferenciais</h4>
                     <ul className="space-y-3">
                       {salon.differentiators && salon.differentiators.length > 0 ? (
                         salon.differentiators.map(item => (
-                          <li key={item} className="flex items-center text-sm text-stone-600 dark:text-stone-400">
-                            <CheckCircle className="h-4 w-4 mr-2 text-emerald-500" /> {item}
+                          <li key={item} className="flex items-center text-xs sm:text-sm text-stone-600 dark:text-stone-400">
+                            <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 text-emerald-500" /> {item}
                           </li>
                         ))
                       ) : (
                         ['Ambiente Climatizado', 'Wi-Fi Gratuito', 'Café e Bebidas', 'Estacionamento'].map(item => (
-                          <li key={item} className="flex items-center text-sm text-stone-600 dark:text-stone-400">
-                            <CheckCircle className="h-4 w-4 mr-2 text-emerald-500" /> {item}
+                          <li key={item} className="flex items-center text-xs sm:text-sm text-stone-600 dark:text-stone-400">
+                            <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 text-emerald-500" /> {item}
                           </li>
                         ))
                       )}
@@ -390,8 +392,8 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
                 </div>
 
                 {salon.address && (
-                  <div className="p-8 bg-stone-50 dark:bg-stone-900/50 rounded-[32px] border border-stone-100 dark:border-stone-800">
-                    <h4 className="text-xl serif text-stone-800 dark:text-stone-100 mb-6 flex items-center">
+                  <div className="p-6 sm:p-8 bg-stone-50 dark:bg-stone-900/50 rounded-[32px] border border-stone-100 dark:border-stone-800">
+                    <h4 className="text-lg sm:text-xl serif text-stone-800 dark:text-stone-100 mb-6 flex items-center">
                       <span className="p-2 bg-brand-primary/10 rounded-lg mr-3">
                         <MapPin className="h-5 w-5 text-brand-primary" />
                       </span>
@@ -410,13 +412,13 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
                         className="dark:invert dark:hue-rotate-180 dark:brightness-90"
                       />
                     </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <p className="text-sm text-stone-500 dark:text-stone-400">{salon.address}</p>
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400">{salon.address}</p>
                       <a 
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(salon.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-brand-primary text-sm font-bold hover:underline flex items-center"
+                        className="text-brand-primary text-xs sm:text-sm font-bold hover:underline flex items-center whitespace-nowrap"
                       >
                         Abrir no Google Maps <ChevronRight className="h-4 w-4 ml-1" />
                       </a>
@@ -429,38 +431,38 @@ export default function EstablishmentDetail({ salonId, onBack, onSelectService }
         </div>
 
         {/* Right Column: Sticky Sidebar */}
-        <div className="space-y-8">
-          <div className="bg-stone-900 dark:bg-stone-950 text-white p-8 rounded-[40px] shadow-2xl sticky top-24 border border-white/5 dark:border-white/10">
-            <h3 className="text-2xl serif mb-6">Agende agora</h3>
-            <p className="text-stone-400 text-sm mb-8">
+        <div className="space-y-6 sm:space-y-8">
+          <div className="bg-stone-900 dark:bg-stone-950 text-white p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[40px] shadow-2xl lg:sticky lg:top-24 border border-white/5 dark:border-white/10">
+            <h3 className="text-[1.1rem] sm:text-2xl serif mb-3 sm:mb-6">Agende agora</h3>
+            <p className="text-stone-400 text-[0.7rem] sm:text-sm mb-5 sm:mb-8 leading-relaxed">
               Escolha um serviço ao lado para iniciar seu agendamento de forma rápida e segura.
             </p>
-            <div className="space-y-4">
-              <div className="flex items-center p-4 bg-white/5 rounded-2xl border border-white/10">
-                <div className="w-10 h-10 rounded-full bg-brand-primary/20 flex items-center justify-center mr-4">
-                  <CheckCircle className="h-5 w-5 text-brand-primary" />
+            <div className="space-y-2.5 sm:space-y-4">
+              <div className="flex items-center p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/10">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-brand-primary/20 flex items-center justify-center mr-3 sm:mr-4 shrink-0">
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-brand-primary" />
                 </div>
-                <span className="text-sm font-medium">Confirmação Instantânea</span>
+                <span className="text-[0.75rem] sm:text-sm font-medium">Confirmação Instantânea</span>
               </div>
-              <div className="flex items-center p-4 bg-white/5 rounded-2xl border border-white/10">
-                <div className="w-10 h-10 rounded-full bg-brand-primary/20 flex items-center justify-center mr-4">
-                  <Clock className="h-5 w-5 text-brand-primary" />
+              <div className="flex items-center p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/10">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-brand-primary/20 flex items-center justify-center mr-3 sm:mr-4 shrink-0">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-brand-primary" />
                 </div>
-                <span className="text-sm font-medium">Escolha seu Horário</span>
+                <span className="text-[0.75rem] sm:text-sm font-medium">Escolha seu Horário</span>
               </div>
             </div>
             
-            <div className="mt-12 pt-8 border-t border-white/10">
-              <p className="text-xs text-stone-500 dark:text-stone-400 uppercase font-bold tracking-widest mb-4">Localização</p>
+            <div className="mt-6 sm:mt-12 pt-6 sm:pt-8 border-t border-white/10">
+              <p className="text-[0.6rem] sm:text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-widest mb-4">Localização</p>
               <a 
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(salon.address || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="aspect-square bg-white/5 rounded-3xl overflow-hidden border border-white/10 flex items-center justify-center group/map hover:bg-white/10 transition-all"
+                className="aspect-square bg-white/5 rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 flex items-center justify-center group/map hover:bg-white/10 transition-all max-w-[140px] sm:max-w-none mx-auto lg:max-w-none"
               >
                 <div className="text-center">
-                  <MapPin className="h-12 w-12 text-stone-700 dark:text-stone-600 mx-auto mb-2 group-hover/map:text-brand-primary transition-colors" />
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase tracking-widest opacity-0 group-hover/map:opacity-100 transition-opacity">Ver Mapa</span>
+                  <MapPin className="h-8 w-8 sm:h-12 sm:w-12 text-stone-700 dark:text-stone-600 mx-auto mb-2 group-hover/map:text-brand-primary transition-colors" />
+                  <span className="text-[0.6rem] sm:text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase tracking-widest opacity-0 group-hover/map:opacity-100 transition-opacity">Ver Mapa</span>
                 </div>
               </a>
             </div>

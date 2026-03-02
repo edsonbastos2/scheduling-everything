@@ -51,19 +51,19 @@ export default function UserProfileSettings({ profile, onUpdate, onBack }: UserP
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12 animate-in fade-in slide-in-from-bottom-4 duration-500 transition-colors duration-300">
+    <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 animate-in fade-in slide-in-from-bottom-4 duration-500 transition-colors duration-300">
       <button 
         onClick={onBack}
-        className="flex items-center text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 mb-8 transition-colors group"
+        className="flex items-center text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 mb-6 sm:mb-8 transition-colors group text-sm sm:text-base"
       >
         <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
         Voltar
       </button>
 
-      <div className="bg-white dark:bg-stone-900 rounded-[40px] shadow-xl shadow-stone-200/50 dark:shadow-black/50 border border-stone-100 dark:border-stone-800 overflow-hidden">
-        <div className="bg-brand-primary/5 dark:bg-brand-primary/10 p-8 border-b border-stone-100 dark:border-stone-800 text-center">
+      <div className="bg-white dark:bg-stone-900 rounded-[32px] sm:rounded-[40px] shadow-xl shadow-stone-200/50 dark:shadow-black/50 border border-stone-100 dark:border-stone-800 overflow-hidden">
+        <div className="bg-brand-primary/5 dark:bg-brand-primary/10 p-6 sm:p-8 border-b border-stone-100 dark:border-stone-800 text-center">
           <div className="relative inline-block mb-4">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-stone-800 shadow-md bg-stone-100 dark:bg-stone-800 mx-auto">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-white dark:border-stone-800 shadow-md bg-stone-100 dark:bg-stone-800 mx-auto">
               {avatarUrl ? (
                 <img 
                   src={avatarUrl} 
@@ -73,19 +73,19 @@ export default function UserProfileSettings({ profile, onUpdate, onBack }: UserP
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-stone-300 dark:text-stone-600">
-                  <User className="h-12 w-12" />
+                  <User className="h-10 w-10 sm:h-12 sm:w-12" />
                 </div>
               )}
             </div>
-            <div className="absolute bottom-0 right-0 bg-white dark:bg-stone-800 p-2 rounded-full shadow-lg border border-stone-100 dark:border-stone-700 text-brand-primary">
-              <Camera className="h-4 w-4" />
+            <div className="absolute bottom-0 right-0 bg-white dark:bg-stone-800 p-1.5 sm:p-2 rounded-full shadow-lg border border-stone-100 dark:border-stone-700 text-brand-primary">
+              <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </div>
           </div>
-          <h2 className="text-2xl serif text-stone-800 dark:text-stone-100">Minha Conta</h2>
-          <p className="text-stone-500 dark:text-stone-400 text-sm">Gerencie suas informações pessoais</p>
+          <h2 className="text-xl sm:text-2xl serif text-stone-800 dark:text-stone-100">Minha Conta</h2>
+          <p className="text-stone-500 dark:text-stone-400 text-xs sm:text-sm">Gerencie suas informações pessoais</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-stone-600 dark:text-stone-400 flex items-center">
               <User className="h-4 w-4 mr-2" /> Nome Completo

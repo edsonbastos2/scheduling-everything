@@ -162,13 +162,13 @@ export default function ProfessionalManagement({ profile, salonId }: Professiona
 
   return (
     <div className="space-y-8 transition-colors duration-300">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-3xl serif text-stone-900 dark:text-stone-100">Profissionais</h2>
-          <p className="text-stone-500 dark:text-stone-400">Gerencie a equipe do seu estabelecimento.</p>
+          <h2 className="text-2xl sm:text-3xl serif text-stone-900 dark:text-stone-100">Profissionais</h2>
+          <p className="text-stone-500 dark:text-stone-400 text-sm sm:text-base">Gerencie a equipe do seu estabelecimento.</p>
         </div>
-        <div className="flex items-center space-x-4">
-          <label className="flex items-center cursor-pointer text-sm text-stone-500 dark:text-stone-400 font-medium">
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+          <label className="flex items-center cursor-pointer text-sm text-stone-500 dark:text-stone-400 font-medium whitespace-nowrap">
             <input 
               type="checkbox" 
               checked={showInactive} 
@@ -179,7 +179,7 @@ export default function ProfessionalManagement({ profile, salonId }: Professiona
           </label>
           <button
             onClick={() => setShowForm(true)}
-            className="bg-brand-primary text-white px-6 py-3 rounded-full font-semibold flex items-center shadow-lg shadow-brand-primary/20 hover:bg-opacity-90 transition-all"
+            className="w-full md:w-auto bg-brand-primary text-white px-6 py-3 rounded-full font-semibold flex items-center justify-center shadow-lg shadow-brand-primary/20 hover:bg-opacity-90 transition-all"
           >
             <Plus className="h-5 w-5 mr-2" /> Novo Profissional
           </button>
