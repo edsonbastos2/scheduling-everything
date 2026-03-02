@@ -25,8 +25,8 @@ export default function EstablishmentDiscovery({ onSelectSalon, onSelectService,
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const { data: salonsData } = await supabase
         .from('salons')

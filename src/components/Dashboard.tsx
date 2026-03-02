@@ -42,7 +42,7 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
 
   useEffect(() => {
     if (profile) {
-      fetchData();
+      fetchData(!salon);
     }
   }, [profile]);
 
@@ -110,8 +110,8 @@ export default function Dashboard({ profile, initialTab = 'overview', theme }: D
     };
   }, [salon?.id]);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       // Fetch Salon
       const { data: salonData } = await supabase

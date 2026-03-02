@@ -69,8 +69,8 @@ export default function App() {
       console.error('Error fetching profile:', error);
     } else {
       setProfile(data);
-      // Redirect based on role if we are at home or just logged in
-      if (view === 'home' || view === 'dashboard' || view === 'booking' || view === 'super_admin_dashboard') {
+      // Redirect based on role ONLY if we are at home (just logged in)
+      if (view === 'home') {
         if (data.role === 'super_admin') {
           setView('super_admin_dashboard');
         } else if (data.role === 'admin') {

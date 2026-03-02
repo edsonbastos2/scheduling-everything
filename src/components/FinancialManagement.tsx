@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { FinancialItem, Service } from '../types';
-import { DollarSign, Plus, Trash2, TrendingUp, TrendingDown, Calculator, Info, AlertCircle } from 'lucide-react';
+import { DollarSign, Plus, Trash2, TrendingUp, TrendingDown, Calculator, Info, AlertCircle, Edit2, Check, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface FinancialManagementProps {
@@ -13,6 +13,9 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDescription, setEditDescription] = useState('');
+  const [editAmount, setEditAmount] = useState('');
 
   // Form state
   const [description, setDescription] = useState('');
@@ -87,6 +90,45 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
       fetchData();
     } catch (error: any) {
       toast.error(error.message);
+    }
+  };
+
+  const handleStartEdit = (item: FinancialItem) => {
+    setEditingId(item.id);
+    setEditDescription(item.description);
+    setEditAmount(item.amount.toString());
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditDescription('');
+    setEditAmount('');
+  };
+
+  const handleUpdateItem = async (id: string) => {
+    if (!editDescription || !editAmount) {
+      toast.error('Preencha todos os campos');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('salon_finances')
+        .update({
+          description: editDescription,
+          amount: parseFloat(editAmount)
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Item atualizado!');
+      setEditingId(null);
+      fetchData();
+    } catch (error: any) {
+      toast.error('Erro ao atualizar item');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -193,7 +235,18 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
                   ) : (
                     items.map((item) => (
                       <tr key={item.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-800/50 transition-colors">
-                        <td className="px-4 sm:px-6 py-4 font-medium text-stone-800 dark:text-stone-200 text-sm">{item.description}</td>
+                        <td className="px-4 sm:px-6 py-4 font-medium text-stone-800 dark:text-stone-200 text-sm">
+                          {editingId === item.id ? (
+                            <input
+                              type="text"
+                              value={editDescription}
+                              onChange={(e) => setEditDescription(e.target.value)}
+                              className="w-full px-2 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                            />
+                          ) : (
+                            item.description
+                          )}
+                        </td>
                         <td className="px-4 sm:px-6 py-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${
                             item.type === 'fixed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
@@ -201,14 +254,60 @@ export default function FinancialManagement({ salonId }: FinancialManagementProp
                             {item.type === 'fixed' ? 'Fixo' : 'Variável'}
                           </span>
                         </td>
-                        <td className="px-4 sm:px-6 py-4 font-bold text-stone-800 dark:text-stone-200 text-sm whitespace-nowrap">R$ {item.amount.toLocaleString()}</td>
+                        <td className="px-4 sm:px-6 py-4 font-bold text-stone-800 dark:text-stone-200 text-sm whitespace-nowrap">
+                          {editingId === item.id ? (
+                            <div className="flex items-center">
+                              <span className="mr-1 text-stone-400">R$</span>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={editAmount}
+                                onChange={(e) => setEditAmount(e.target.value)}
+                                className="w-24 px-2 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                              />
+                            </div>
+                          ) : (
+                            `R$ ${item.amount.toLocaleString()}`
+                          )}
+                        </td>
                         <td className="px-4 sm:px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleDeleteItem(item.id)}
-                            className="p-2 text-stone-400 hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                          </button>
+                          <div className="flex justify-end space-x-2">
+                            {editingId === item.id ? (
+                              <>
+                                <button
+                                  onClick={() => handleUpdateItem(item.id)}
+                                  className="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                                  title="Salvar"
+                                >
+                                  <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="p-2 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors"
+                                  title="Cancelar"
+                                >
+                                  <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => handleStartEdit(item)}
+                                  className="p-2 text-stone-400 hover:text-brand-primary transition-colors"
+                                  title="Editar"
+                                >
+                                  <Edit2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteItem(item.id)}
+                                  className="p-2 text-stone-400 hover:text-red-500 transition-colors"
+                                  title="Excluir"
+                                >
+                                  <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))

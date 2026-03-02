@@ -63,8 +63,8 @@ export default function SuperAdminDashboard({ profile, theme }: SuperAdminDashbo
     fetchGlobalData();
   }, []);
 
-  const fetchGlobalData = async () => {
-    setLoading(true);
+  const fetchGlobalData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       // Fetch all salons
       const { data: salonsData, error: salonsError } = await supabase
